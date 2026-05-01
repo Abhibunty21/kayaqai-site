@@ -1,0 +1,2684 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KayaqAI · AI buying assistant for electronics in India</title>
+  <meta name="description" content="Your AI assistant to shortlist and buy electronics in India. Compare phones, TVs, ACs, washing machines and refrigerators across key retailers with AI-powered recommendations, price tracking, and crowdsourced reviews." />
+  <meta name="keywords" content="electronics India, smartphone comparison, TV price tracker, AC research, washing machine reviews, refrigerator comparison, AI buying assistant" />
+  <link rel="canonical" href="https://kayaqai.com/" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="KayaqAI · AI buying assistant for electronics in India" />
+  <meta property="og:description" content="Compare phones, TVs, ACs and appliances across key Indian retailers. AI-powered recommendations, price tracking, and real reviews." />
+  <meta property="og:url" content="https://kayaqai.com/" />
+  <meta property="og:site_name" content="KayaqAI" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="KayaqAI · AI buying assistant for electronics in India" />
+  <meta name="twitter:description" content="Compare phones, TVs, ACs and appliances across key Indian retailers." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['"SF Pro Display"', 'Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            ink: { 50:'#f7f7f8',100:'#eeeef0',200:'#d8d8dc',300:'#b6b6bd',400:'#8a8a93',500:'#65656c',600:'#4a4a50',700:'#34343a',800:'#1f1f24',900:'#0d0d10' },
+            volt: { 50:'#eef2ff',100:'#e0e7ff',500:'#5b6cff',600:'#4c5af0',700:'#3b48d0' },
+          },
+          boxShadow: {
+            soft: '0 1px 2px rgba(15,15,20,0.04), 0 4px 24px rgba(15,15,20,0.06)',
+            glow: '0 0 0 1px rgba(91,108,255,0.15), 0 8px 40px rgba(91,108,255,0.18)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    body { -webkit-font-smoothing: antialiased; }
+    ::selection { background: #5b6cff; color: white; }
+    .container-tight { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+    .hero-blob { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+    .hero-blob::before {
+      content:""; position:absolute; top:-20%; left:50%; width:1100px; height:1100px;
+      transform:translateX(-50%);
+      background: radial-gradient(circle at 30% 30%, rgba(91,108,255,0.18), transparent 60%),
+                  radial-gradient(circle at 70% 60%, rgba(255,150,200,0.14), transparent 60%);
+      filter: blur(60px);
+    }
+    .chip { display:inline-flex; align-items:center; gap:6px; border-radius:9999px;
+            border:1px solid #d8d8dc; background:white; padding:6px 12px; font-size:12px;
+            font-weight:500; color:#34343a; transition:all .15s; cursor:pointer; }
+    .chip:hover { border-color:#8a8a93; color:#0d0d10; }
+    .chip.active { background:#0d0d10; color:white; border-color:#0d0d10; }
+    .btn-primary { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            border-radius:9999px; background:#0d0d10; color:white; padding:12px 24px;
+            font-size:14px; font-weight:500; transition:all .15s; cursor:pointer; border:none; }
+    .btn-primary:hover { background:#34343a; }
+    .btn-primary:disabled { opacity: .3; cursor:not-allowed; }
+    .btn-secondary { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+            border-radius:9999px; border:1px solid #d8d8dc; background:white; color:#0d0d10;
+            padding:12px 24px; font-size:14px; font-weight:500; transition:all .15s; cursor:pointer; }
+    .btn-secondary:hover { border-color:#8a8a93; }
+    .card { border-radius:16px; border:1px solid #eeeef0; background:white;
+            box-shadow:0 1px 2px rgba(15,15,20,0.04), 0 4px 24px rgba(15,15,20,0.06); }
+    .line-clamp-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    [data-link] { cursor:pointer; }
+    .spinner { display:inline-block; width:16px; height:16px; border:2px solid #e0e7ff;
+              border-top-color:#5b6cff; border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-backdrop { position:fixed; inset:0; background:rgba(13,13,16,0.5); backdrop-filter: blur(4px); z-index:50; }
+    .modal-content { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+                     z-index:51; max-width:560px; width:calc(100% - 32px); max-height:90vh; overflow:auto; }
+    .modal-wide { max-width: 720px; }
+    .star-input { cursor:pointer; font-size:24px; color:#d8d8dc; transition:color .1s; }
+    .star-input.filled { color:#fbbf24; }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .fade-up { animation: fadeUp .25s ease-out; }
+  </style>
+</head>
+<body class="bg-white text-ink-900 font-sans">
+<div id="app"></div>
+<div id="modal-root"></div>
+<div id="compare-bar-root"></div>
+
+<script>
+/* =====================================================================
+ * CATEGORIES + DATA
+ * ===================================================================== */
+
+/* Unified icon set: 1.5px stroke, rounded caps, no fill. Used everywhere. */
+const ICON_SVG = {
+  phone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><line x1="11" y1="18.5" x2="13" y2="18.5"/><line x1="10" y1="5" x2="14" y2="5"/></svg>`,
+  tv: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="13" rx="2"/><line x1="8" y1="21.5" x2="16" y2="21.5"/><line x1="12" y1="17.5" x2="12" y2="21.5"/></svg>`,
+  washingMachine: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2.5" width="16" height="19" rx="2"/><circle cx="12" cy="13.5" r="4.5"/><circle cx="12" cy="13.5" r="1.5"/><circle cx="7.5" cy="6" r="0.6" fill="currentColor"/><circle cx="10.5" cy="6" r="0.6" fill="currentColor"/></svg>`,
+  fridge: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2"/><line x1="5" y1="9.5" x2="19" y2="9.5"/><line x1="8" y1="6" x2="8" y2="7.5"/><line x1="8" y1="12.5" x2="8" y2="14.5"/></svg>`,
+  ac: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="9" rx="2"/><line x1="6" y1="9.5" x2="18" y2="9.5"/><path d="M7 18 Q9 16 9 14"/><path d="M12 18 Q14 16 14 14"/><path d="M17 18 Q19 16 19 14"/></svg>`,
+  share: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.5" y1="10.5" x2="15.5" y2="6.5"/><line x1="8.5" y1="13.5" x2="15.5" y2="17.5"/></svg>`,
+  whatsapp: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.1-.2.3-.7 1-.9 1.2-.2.2-.3.2-.6.1-.3-.1-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5 0-.1-.7-1.7-1-2.3-.3-.6-.5-.5-.7-.5-.2 0-.4 0-.6 0-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4 0 1.4 1 2.8 1.2 3 .1.2 2 3 4.8 4.2 1.7.7 2.3.8 3.2.6.5-.1 1.7-.7 1.9-1.3.2-.7.2-1.2.2-1.3-.1-.1-.3-.2-.6-.3M12 2C6.5 2 2 6.5 2 12c0 1.7.5 3.4 1.4 4.9L2 22l5.3-1.4c1.4.8 3.1 1.2 4.7 1.2 5.5 0 10-4.5 10-10S17.5 2 12 2z"/></svg>`,
+  twitter: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>`,
+  facebook: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"/></svg>`,
+  email: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="2"/><polyline points="3,7 12,13 21,7"/></svg>`,
+  link: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></svg>`,
+  microphone: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>`,
+  sparkle: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg>`,
+};
+
+function categoryIcon(key, sizeClass = 'h-5 w-5') {
+  const svg = ICON_SVG[key] || ICON_SVG.phone;
+  return svg.replace('<svg ', `<svg class="${sizeClass}" `);
+}
+
+const CATEGORIES = [
+  { slug: 'phones',            name: 'Phones',           iconKey: 'phone' },
+  { slug: 'tvs',               name: 'TVs',              iconKey: 'tv' },
+  { slug: 'washing-machines',  name: 'Washing Machines', iconKey: 'washingMachine' },
+  { slug: 'refrigerators',     name: 'Refrigerators',    iconKey: 'fridge' },
+  { slug: 'acs',               name: 'ACs',              iconKey: 'ac' },
+];
+
+const PLATFORMS = {
+  amazon:   { label: 'Amazon',           color: '#ff9900' },
+  flipkart: { label: 'Flipkart',         color: '#2874f0' },
+  croma:    { label: 'Croma',            color: '#12daa8' },
+  reliance: { label: 'Reliance Digital', color: '#e63946' },
+  vijay:    { label: 'Vijay Sales',      color: '#9b5de5' },
+};
+
+function generatePriceHistory(basePrice, seed) {
+  const days = 30, history = [];
+  let rng = seed;
+  function rand() { rng = (rng * 9301 + 49297) % 233280; return rng / 233280; }
+  for (let i = days - 1; i >= 0; i--) {
+    const date = new Date(); date.setDate(date.getDate() - i);
+    const point = { date: date.toISOString().slice(0, 10) };
+    Object.keys(PLATFORMS).forEach((p, idx) => {
+      const drift = (rand() - 0.5) * 0.08;
+      const seasonal = Math.sin((i + idx * 5) / 4) * 0.03;
+      point[p] = Math.round(basePrice * (1 + drift + seasonal) / 100) * 100;
+    });
+    history.push(point);
+  }
+  return history;
+}
+
+function makeListings(basePrice, seed) {
+  let rng = seed;
+  function rand() { rng = (rng * 9301 + 49297) % 233280; return rng / 233280; }
+  return Object.keys(PLATFORMS).map(p => {
+    const jitter = (rand() - 0.5) * 0.08;
+    const price = Math.round(basePrice * (1 + jitter) / 100) * 100;
+    const mrp = Math.round(basePrice * 1.12 / 100) * 100;
+    const inStock = rand() > 0.1;
+    return {
+      platform: p, url: '#',
+      price: inStock ? price : null,
+      mrp,
+      discount: inStock ? Math.round((mrp - price) / mrp * 100) : null,
+      inStock,
+      seller: PLATFORMS[p].label + ' Retail',
+      rating: 3.7 + rand() * 0.9,
+      reviews: Math.floor(800 + rand() * 11200),
+    };
+  });
+}
+
+/* ---------- Phones ---------- */
+const PHONES = [
+  { slug:'samsung-galaxy-s24-fe', name:'Samsung Galaxy S24 FE', brand:'Samsung', category:'phones',
+    image:'https://m.media-amazon.com/images/I/61NOzlMPK4L._SL1500_.jpg', releaseYear:2024, basePrice:49999,
+    tags:['flagship','wireless-charging','ip68','5g','camera'],
+    specs:{ display:'6.7" Dynamic AMOLED 2X', resolution:'1080 x 2340', refreshRate:120,
+      chipset:'Exynos 2400e', cpu:'Octa-core', gpu:'Xclipse 940', ram:8, storage:128, expandable:false,
+      mainCamera:'50MP wide + 8MP telephoto + 12MP ultrawide', frontCamera:'10MP',
+      battery:4700, charging:25, wireless:true, os:'Android 14, One UI 6.1', weight:213, fiveG:true, ip:'IP68' },
+    pros:['Class-leading Dynamic AMOLED display','7 years of OS updates','IP68 + wireless charging','Strong telephoto camera'],
+    cons:['Exynos chip lags Snapdragon in sustained gaming','Slow 25W charging','Heavy at 213g'],
+    verdict:'Best balance of display, camera, and 7 years of OS support. Ideal if you want a future-proof Samsung flagship without the S-series price.' },
+  { slug:'apple-iphone-15', name:'Apple iPhone 15', brand:'Apple', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71657TiFeHL._SL1500_.jpg', releaseYear:2023, basePrice:62999,
+    tags:['flagship','premium','wireless-charging','ip68','camera','video'],
+    specs:{ display:'6.1" Super Retina XDR OLED', resolution:'1179 x 2556', refreshRate:60,
+      chipset:'Apple A16 Bionic', cpu:'Hexa-core', gpu:'Apple GPU 5-core', ram:6, storage:128, expandable:false,
+      mainCamera:'48MP main + 12MP ultrawide', frontCamera:'12MP TrueDepth',
+      battery:3349, charging:20, wireless:true, os:'iOS 17', weight:171, fiveG:true, ip:'IP68' },
+    pros:['Best video camera in this price segment','5+ years of iOS updates','Strongest resale value','Apple ecosystem benefits'],
+    cons:['60Hz display feels dated','No expandable storage','Slow 20W charging','Smaller battery'],
+    verdict:'Best video camera on any phone in this price range. Pick this if you live inside the Apple ecosystem or value resale.' },
+  { slug:'oneplus-12r', name:'OnePlus 12R', brand:'OnePlus', category:'phones',
+    image:'https://m.media-amazon.com/images/I/61ItkDbJDoL._SL1500_.jpg', releaseYear:2024, basePrice:39999,
+    tags:['flagship','performance','gaming','5g','battery'],
+    specs:{ display:'6.78" LTPO AMOLED', resolution:'1264 x 2780', refreshRate:120,
+      chipset:'Snapdragon 8 Gen 2', cpu:'Octa-core', gpu:'Adreno 740', ram:8, storage:128, expandable:false,
+      mainCamera:'50MP main + 8MP ultrawide + 2MP macro', frontCamera:'16MP',
+      battery:5500, charging:100, wireless:false, os:'OxygenOS 14 (Android 14)', weight:207, fiveG:true, ip:'IP64' },
+    pros:['Snapdragon 8 Gen 2 flagship performance','100W charging fully tops up in 26 minutes','5500 mAh battery','Premium build for the price'],
+    cons:['Camera trails Pixel/iPhone at this price','Only IP64','No wireless charging','Heavy'],
+    verdict:'Flagship-grade performance for under ₹40k. The 100W charging means full battery in under 26 minutes. Gaming machine.' },
+  { slug:'xiaomi-redmi-note-13-pro-5g', name:'Xiaomi Redmi Note 13 Pro 5G', brand:'Xiaomi', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71KKj2eC9xL._SL1500_.jpg', releaseYear:2024, basePrice:23999,
+    tags:['budget','camera','5g','value'],
+    specs:{ display:'6.67" AMOLED', resolution:'1220 x 2712', refreshRate:120,
+      chipset:'Snapdragon 7s Gen 2', cpu:'Octa-core', gpu:'Adreno 710', ram:8, storage:256, expandable:false,
+      mainCamera:'200MP main + 8MP ultrawide + 2MP macro', frontCamera:'16MP',
+      battery:5100, charging:67, wireless:false, os:'MIUI 14 (Android 13)', weight:187, fiveG:true, ip:'IP54' },
+    pros:['200MP main camera at sub-₹25k','256GB storage included','AMOLED + 120Hz','67W fast charging'],
+    cons:['MIUI shows ads in stock apps','Updates delayed vs Samsung/Pixel','No wireless charging','IP54 only'],
+    verdict:'Value pick of the year. 200MP camera and 256GB storage at this price is unmatched. Software experience is the only weak link.' },
+  { slug:'google-pixel-8a', name:'Google Pixel 8a', brand:'Google', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71YBu5NBvIL._SL1500_.jpg', releaseYear:2024, basePrice:52999,
+    tags:['camera','clean-android','wireless-charging','ai'],
+    specs:{ display:'6.1" OLED Actua', resolution:'1080 x 2400', refreshRate:120,
+      chipset:'Google Tensor G3', cpu:'Nona-core', gpu:'Mali-G715', ram:8, storage:128, expandable:false,
+      mainCamera:'64MP main + 13MP ultrawide', frontCamera:'13MP',
+      battery:4492, charging:18, wireless:true, os:'Android 14', weight:188, fiveG:true, ip:'IP67' },
+    pros:['Best point-and-shoot camera at this price','7 years of guaranteed updates','Pixel-exclusive AI features','Compact form factor'],
+    cons:['Tensor G3 runs hot in summers','Slow 18W charging','Service centres limited in tier-2 cities','Premium price for mid-range specs'],
+    verdict:'The best point-and-shoot camera at this price. 7 years of OS updates and Google AI features make it future-proof.' },
+  { slug:'vivo-v30-pro-5g', name:'Vivo V30 Pro 5G', brand:'Vivo', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71nCfblh9wL._SL1500_.jpg', releaseYear:2024, basePrice:41999,
+    tags:['camera','design','selfie','5g'],
+    specs:{ display:'6.78" AMOLED', resolution:'1260 x 2800', refreshRate:120,
+      chipset:'Mediatek Dimensity 8200', cpu:'Octa-core', gpu:'Mali-G610', ram:12, storage:256, expandable:false,
+      mainCamera:'50MP main + 50MP telephoto + 50MP ultrawide (Zeiss)', frontCamera:'50MP',
+      battery:5000, charging:80, wireless:false, os:'Funtouch OS 14 (Android 14)', weight:188, fiveG:true, ip:'IP54' },
+    pros:['Triple 50MP Zeiss lenses','Best selfie camera at this price','Fast 80W charging','Slim, premium design'],
+    cons:['Funtouch OS bloatware','Dimensity trails Snapdragon 8 Gen 2','Only IP54','Software updates uncertain'],
+    verdict:'Camera-first design with Zeiss lenses. Triple 50MP setup makes portraits and night shots better than rivals at this price.' },
+  { slug:'realme-narzo-70-pro-5g', name:'Realme Narzo 70 Pro 5G', brand:'Realme', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71CzvjW6FNL._SL1500_.jpg', releaseYear:2024, basePrice:18999,
+    tags:['budget','5g','value'],
+    specs:{ display:'6.67" AMOLED', resolution:'1080 x 2400', refreshRate:120,
+      chipset:'Mediatek Dimensity 7050', cpu:'Octa-core', gpu:'Mali-G68', ram:8, storage:128, expandable:true,
+      mainCamera:'50MP main + 2MP depth', frontCamera:'16MP',
+      battery:5000, charging:67, wireless:false, os:'Realme UI 5.0 (Android 14)', weight:190, fiveG:true, ip:'IP54' },
+    pros:['AMOLED + 120Hz under ₹20k','67W fast charging','Expandable storage','Lightweight'],
+    cons:['Realme UI ads everywhere','Camera is basic','Only 2 OS updates promised','Plastic build'],
+    verdict:'Solid sub-₹20k all-rounder. Storage expandable, 67W charging, AMOLED display. Realme UI ads are the only annoyance.' },
+  { slug:'samsung-galaxy-m35-5g', name:'Samsung Galaxy M35 5G', brand:'Samsung', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71h-pMWcgQL._SL1500_.jpg', releaseYear:2024, basePrice:16999,
+    tags:['budget','battery','5g','value'],
+    specs:{ display:'6.6" Super AMOLED', resolution:'1080 x 2340', refreshRate:120,
+      chipset:'Exynos 1380', cpu:'Octa-core', gpu:'Mali-G68', ram:6, storage:128, expandable:true,
+      mainCamera:'50MP main + 8MP ultrawide + 2MP macro', frontCamera:'13MP',
+      battery:6000, charging:25, wireless:false, os:'One UI 6.1 (Android 14)', weight:222, fiveG:true, ip:null },
+    pros:['6000 mAh battery, easy 2-day phone','Samsung software polish at budget price','Expandable storage','4 OS updates promised'],
+    cons:['Heavy at 222g','Slow 25W charging','No IP rating','Exynos chip slower than Snapdragon rivals'],
+    verdict:'Battery monster with 6000 mAh. Samsung software polish at a Realme price. Heavy in the hand but worth it for the 2-day battery life.' },
+  { slug:'nothing-phone-2a', name:'Nothing Phone (2a)', brand:'Nothing', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71RXyvhT5fL._SL1500_.jpg', releaseYear:2024, basePrice:23999,
+    tags:['design','clean-android','5g','lifestyle'],
+    specs:{ display:'6.7" AMOLED', resolution:'1084 x 2412', refreshRate:120,
+      chipset:'Mediatek Dimensity 7200 Pro', cpu:'Octa-core', gpu:'Mali-G610', ram:8, storage:128, expandable:false,
+      mainCamera:'50MP main + 50MP ultrawide', frontCamera:'32MP',
+      battery:5000, charging:45, wireless:false, os:'Nothing OS 2.5 (Android 14)', weight:190, fiveG:true, ip:'IP54' },
+    pros:['Most distinctive design at this price','Cleanest non-Pixel Android skin','Glyph LED interface is genuinely useful','Strong dual 50MP cameras'],
+    cons:['Service network thin in India','Only IP54','No wireless charging','Mid-tier Dimensity chip'],
+    verdict:'Most distinctive design at this price, plus the cleanest non-Pixel Android skin. Pick this if how your phone looks matters.' },
+  { slug:'iqoo-neo-9-pro', name:'iQOO Neo 9 Pro', brand:'iQOO', category:'phones',
+    image:'https://m.media-amazon.com/images/I/71OIA0UFMdL._SL1500_.jpg', releaseYear:2024, basePrice:33999,
+    tags:['gaming','performance','5g','value'],
+    specs:{ display:'6.78" AMOLED', resolution:'1260 x 2800', refreshRate:144,
+      chipset:'Snapdragon 8 Gen 2', cpu:'Octa-core', gpu:'Adreno 740', ram:8, storage:128, expandable:false,
+      mainCamera:'50MP main + 8MP ultrawide', frontCamera:'16MP',
+      battery:5160, charging:120, wireless:false, os:'Funtouch OS 14 (Android 14)', weight:190, fiveG:true, ip:null },
+    pros:['144Hz display + Snapdragon 8 Gen 2','120W charging fully tops up in 18 minutes','Vapour chamber cooling for gaming','Aggressive pricing'],
+    cons:['Funtouch OS is a step down from OxygenOS','No IP rating','Camera is functional, not great','Updates uncertain'],
+    verdict:'Pure gaming machine. 144Hz display + Snapdragon 8 Gen 2 + 120W charging. Cools well even after long BGMI sessions.' },
+  { slug:'apple-iphone-15-pro', name:'Apple iPhone 15 Pro', brand:'Apple', category:'phones',
+    image:'https://m.media-amazon.com/images/I/81hH5vK7BNL._SL1500_.jpg', releaseYear:2023, basePrice:119999,
+    tags:['premium','flagship','camera','wireless-charging','ip68','video'],
+    specs:{ display:'6.1" LTPO Super Retina XDR', resolution:'1179 x 2556', refreshRate:120,
+      chipset:'Apple A17 Pro', cpu:'Hexa-core', gpu:'Apple GPU 6-core', ram:8, storage:256, expandable:false,
+      mainCamera:'48MP main + 12MP telephoto (3x) + 12MP ultrawide', frontCamera:'12MP TrueDepth',
+      battery:3274, charging:27, wireless:true, os:'iOS 17', weight:187, fiveG:true, ip:'IP68' },
+    pros:['Best-in-class camera with telephoto and ProRes video','A17 Pro is fastest mobile chip','Titanium build is lighter than predecessors','Action button + USB-C 3.0'],
+    cons:['Expensive','Battery still middling','Heating issues reported in heavy gaming','No charger in box'],
+    verdict:'Top-tier camera and the only phone with USB-C 3.0 + ProRes video at this performance level. Premium pick if budget allows.' },
+  { slug:'oneplus-nord-ce-4', name:'OnePlus Nord CE 4', brand:'OnePlus', category:'phones',
+    image:'https://m.media-amazon.com/images/I/61ItkDbJDoL._SL1500_.jpg', releaseYear:2024, basePrice:24999,
+    tags:['budget','5g','value','battery'],
+    specs:{ display:'6.7" AMOLED', resolution:'1080 x 2412', refreshRate:120,
+      chipset:'Snapdragon 7 Gen 3', cpu:'Octa-core', gpu:'Adreno 720', ram:8, storage:128, expandable:true,
+      mainCamera:'50MP main + 8MP ultrawide', frontCamera:'16MP',
+      battery:5500, charging:100, wireless:false, os:'OxygenOS 14 (Android 14)', weight:187, fiveG:true, ip:'IP54' },
+    pros:['100W charging at ₹25k is unmatched','OxygenOS is the cleanest OEM skin','5500 mAh battery','Expandable storage'],
+    cons:['Snapdragon 7 Gen 3 trails 8 Gen 2','Plastic frame','Only 2 OS updates','IP54 only'],
+    verdict:'Best value-for-money OnePlus right now. 100W charging at ₹25k is unmatched. Snapdragon 7 Gen 3 keeps it snappy.' },
+];
+
+/* ---------- TVs ---------- */
+const TVS = [
+  { slug:'samsung-crystal-50', name:'Samsung Crystal 4K UHD 50"', brand:'Samsung', category:'tvs',
+    image:'https://m.media-amazon.com/images/I/91emyMwlBUL._SL1500_.jpg', releaseYear:2024, basePrice:38990,
+    tags:['4k','smart-tv','value','samsung'],
+    specs:{ size:'50"', resolution:'3840 x 2160 (4K UHD)', panel:'LED', refreshRate:60, hdr:'HDR10+',
+      smartOs:'Tizen', ports:'3 HDMI + 2 USB', sound:'20W (2.0 ch)', warranty:'1 year', energy:'4-star' },
+    pros:['Sharp 4K with HDR10+','Tizen OS is fast and ad-free','3 HDMI ports for consoles + soundbar','Strong Samsung after-sales'],
+    cons:['Just 60Hz, not ideal for next-gen gaming','Sound is average, soundbar recommended','No Dolby Vision support'],
+    verdict:'Best 50" 4K TV under ₹40k for general living-room use. Tizen interface is the cleanest in this segment.' },
+  { slug:'lg-oled-c3-55', name:'LG OLED C3 55"', brand:'LG', category:'tvs',
+    image:'https://m.media-amazon.com/images/I/81MMJLTo+jL._SL1500_.jpg', releaseYear:2023, basePrice:144999,
+    tags:['oled','premium','gaming','dolby-vision','120hz'],
+    specs:{ size:'55"', resolution:'3840 x 2160 (4K UHD)', panel:'OLED evo', refreshRate:120, hdr:'Dolby Vision IQ + HDR10',
+      smartOs:'webOS 23', ports:'4 HDMI 2.1 + 3 USB', sound:'40W (2.2 ch)', warranty:'1 year + 2 panel', energy:'5-star' },
+    pros:['OLED contrast and true blacks','120Hz with HDMI 2.1 for PS5/Xbox','Dolby Vision and Atmos support','Best-in-class motion handling'],
+    cons:['Premium pricing','Risk of burn-in with static logos','Not as bright as QLED in sunlit rooms'],
+    verdict:'The TV to buy if you watch movies and game. 4 HDMI 2.1 ports and OLED contrast are unmatched at 55".' },
+  { slug:'sony-bravia-xr-65', name:'Sony BRAVIA XR X90L 65"', brand:'Sony', category:'tvs',
+    image:'https://m.media-amazon.com/images/I/81OFv-pwz9L._SL1500_.jpg', releaseYear:2023, basePrice:159990,
+    tags:['premium','gaming','120hz','full-array','sony'],
+    specs:{ size:'65"', resolution:'3840 x 2160 (4K UHD)', panel:'Full Array LED', refreshRate:120, hdr:'Dolby Vision + HDR10',
+      smartOs:'Google TV', ports:'4 HDMI (2 x 2.1) + 2 USB', sound:'30W (2.2 ch)', warranty:'1 year', energy:'4-star' },
+    pros:['Sony XR processor handles motion superbly','Native 120Hz with HDMI 2.1','Google TV with Chromecast built-in','Bright enough for sunlit rooms'],
+    cons:['Heavy and bulky','Only 2 of 4 HDMI ports are 2.1','Premium price'],
+    verdict:'The motion king of the segment. If you watch sports or play console games and have light in the room, this beats OLED.' },
+  { slug:'xiaomi-x-pro-43', name:'Xiaomi X Pro 4K 43"', brand:'Xiaomi', category:'tvs',
+    image:'https://m.media-amazon.com/images/I/71nMr85u7oL._SL1500_.jpg', releaseYear:2024, basePrice:24999,
+    tags:['budget','4k','smart-tv','value'],
+    specs:{ size:'43"', resolution:'3840 x 2160 (4K UHD)', panel:'LED', refreshRate:60, hdr:'Dolby Vision',
+      smartOs:'Google TV', ports:'3 HDMI + 2 USB', sound:'30W (2.0 ch) Dolby Audio', warranty:'1 year', energy:'4-star' },
+    pros:['4K with Dolby Vision under ₹25k','Google TV experience','30W speakers are above average','Good port selection'],
+    cons:['Build quality is plasticky','Service network thin in tier-2 cities','Only 60Hz'],
+    verdict:'Cheapest 4K Dolby Vision TV in India right now. Best for a bedroom or first-TV buyer.' },
+];
+
+/* ---------- Washing Machines ---------- */
+const WASHING_MACHINES = [
+  { slug:'lg-7kg-front-load', name:'LG 7kg Front Load Washing Machine', brand:'LG', category:'washing-machines',
+    image:'https://m.media-amazon.com/images/I/612Yh3VHVHL._SL1500_.jpg', releaseYear:2024, basePrice:36490,
+    tags:['front-load','inverter','5-star','wifi'],
+    specs:{ capacity:'7 kg', type:'Front Load', spinSpeed:'1200 RPM', programs:'14 wash programs', motor:'Inverter Direct Drive',
+      energy:'5-star', warranty:'2 years on machine, 10 years on motor', wifi:'Yes (LG ThinQ app)', features:'Steam wash, Allergy Care, AI DD motion' },
+    pros:['Direct Drive motor with 10-year warranty','5-star energy rating saves on bills','Steam wash for tough stains','LG ThinQ app for remote control'],
+    cons:['Expensive vs top-load','Long cycle times','Requires permanent water connection'],
+    verdict:'Best front loader under ₹40k for a family of 4. Steam wash and inverter motor justify the price.' },
+  { slug:'samsung-8kg-top-load', name:'Samsung 8kg Top Load Washing Machine', brand:'Samsung', category:'washing-machines',
+    image:'https://m.media-amazon.com/images/I/61aVPbJZ04L._SL1500_.jpg', releaseYear:2023, basePrice:24990,
+    tags:['top-load','inverter','5-star','large-capacity'],
+    specs:{ capacity:'8 kg', type:'Top Load', spinSpeed:'700 RPM', programs:'10 wash programs', motor:'Digital Inverter',
+      energy:'5-star', warranty:'2 years on machine, 12 years on motor', wifi:'No', features:'Wobble technology, Magic Filter, Eco Tub Clean' },
+    pros:['Large 8kg capacity for joint families','12-year motor warranty','Wobble tech reduces tangling','Half the cycle time of front loads'],
+    cons:['Lower spin speed leaves clothes wetter','No WiFi','Top loaders use more water'],
+    verdict:'Big-family pick. 8kg capacity at this price is rare and Wobble Tech is gentle on clothes.' },
+  { slug:'whirlpool-65kg-semi-auto', name:'Whirlpool 6.5kg Semi-Automatic', brand:'Whirlpool', category:'washing-machines',
+    image:'https://m.media-amazon.com/images/I/71-TnQEzUhL._SL1500_.jpg', releaseYear:2023, basePrice:11990,
+    tags:['semi-auto','budget','value','large-capacity'],
+    specs:{ capacity:'6.5 kg', type:'Semi-Automatic Top Load', spinSpeed:'1400 RPM', programs:'3 wash programs', motor:'Standard',
+      energy:'NA', warranty:'2 years on machine, 5 years on motor', wifi:'No', features:'SuperSoak, ToughWash, Lint Filter' },
+    pros:['Cheapest path to a real washing machine','Powerful 1400 RPM spin','Low water consumption','Easy to relocate'],
+    cons:['Manual operation, two tubs','No fully automatic cycles','Plastic body','Lower lifespan than fully-auto'],
+    verdict:'Budget pick for tier-2 cities or rentals. Manual but reliable, with the highest spin speed in this class.' },
+  { slug:'ifb-6kg-front-load', name:'IFB 6kg Front Load Senator Aqua', brand:'IFB', category:'washing-machines',
+    image:'https://m.media-amazon.com/images/I/61c9DdDjbtL._SL1500_.jpg', releaseYear:2023, basePrice:31990,
+    tags:['front-load','inverter','5-star','aqua-energie'],
+    specs:{ capacity:'6 kg', type:'Front Load', spinSpeed:'1000 RPM', programs:'14 wash programs', motor:'Inverter',
+      energy:'5-star', warranty:'4 years comprehensive', wifi:'No', features:'Aqua Energie water softener, 3D Wash, Crescent Moon drum' },
+    pros:['Best-in-class 4-year comprehensive warranty','Aqua Energie softens hard water','Crescent Moon drum gentle on fabrics','5-star efficient'],
+    cons:['No WiFi at this price','Smaller 6kg capacity','Service can be slow in metros'],
+    verdict:'IFB warranty is the longest in the segment. Pick if you have hard water or live in a metro with frequent service needs.' },
+];
+
+/* ---------- Refrigerators ---------- */
+const REFRIGERATORS = [
+  { slug:'lg-240l-double-door', name:'LG 240L Double Door Frost Free', brand:'LG', category:'refrigerators',
+    image:'https://m.media-amazon.com/images/I/41EgvXq86yL.jpg', releaseYear:2024, basePrice:24990,
+    tags:['double-door','inverter','3-star','frost-free'],
+    specs:{ capacity:'240L', type:'Double Door, Top Freezer', stars:'3-star', compressor:'Smart Inverter',
+      defrost:'Frost Free', warranty:'1 year + 10 years compressor', features:'Door Cooling+, Multi Air Flow, Auto Smart Connect' },
+    pros:['Smart Inverter compressor saves power','Multi Air Flow keeps food fresh longer','10-year compressor warranty','Auto-connect to home inverter during outage'],
+    cons:['Only 3-star efficient','Smaller freezer compartment','No water dispenser at this price'],
+    verdict:'Sweet spot for a couple or small family. LG inverter compressor is the most reliable in this segment.' },
+  { slug:'samsung-215l-single-door', name:'Samsung 215L Single Door 4-Star', brand:'Samsung', category:'refrigerators',
+    image:'https://m.media-amazon.com/images/I/51EBnVBcfTL._SL1500_.jpg', releaseYear:2024, basePrice:21490,
+    tags:['single-door','direct-cool','4-star','value'],
+    specs:{ capacity:'215L', type:'Single Door, Direct Cool', stars:'4-star', compressor:'Digital Inverter',
+      defrost:'Manual', warranty:'1 year + 10 years compressor', features:'Anti-Bacterial Gasket, Stabilizer-Free, Recessed Handle' },
+    pros:['4-star saves ~₹3000/year on power bills','Stabilizer-free operation','Compact, fits small kitchens','10-year compressor warranty'],
+    cons:['Manual defrosting required','Smaller capacity','Single door means freezer warms when fridge opens'],
+    verdict:'Best efficiency-per-rupee. Ideal for a couple or single person. Tall families will need 240L+.' },
+  { slug:'whirlpool-185l-direct-cool', name:'Whirlpool 185L Single Door 3-Star', brand:'Whirlpool', category:'refrigerators',
+    image:'https://m.media-amazon.com/images/I/41Y14oeKXfL.jpg', releaseYear:2023, basePrice:14990,
+    tags:['single-door','direct-cool','3-star','budget'],
+    specs:{ capacity:'185L', type:'Single Door, Direct Cool', stars:'3-star', compressor:'Standard',
+      defrost:'Manual', warranty:'1 year + 10 years compressor', features:'IntelliSense Inverter, Honeycomb Lock-In, MicroBlock' },
+    pros:['Budget-friendly','Honeycomb Lock-In keeps moisture in vegetables','MicroBlock anti-bacterial liner','10-year compressor warranty'],
+    cons:['Only 3-star efficiency','No inverter compressor','Smaller storage'],
+    verdict:'Cheapest reliable single-door fridge. Pick this for a hostel, rental, or as a secondary fridge.' },
+  { slug:'haier-256l-side-by-side', name:'Haier 256L Side-by-Side Bottom Freezer', brand:'Haier', category:'refrigerators',
+    image:'https://m.media-amazon.com/images/I/51KHE-A1POL._SL1500_.jpg', releaseYear:2024, basePrice:34990,
+    tags:['bottom-freezer','double-door','3-star','convertible'],
+    specs:{ capacity:'256L', type:'Bottom Mounted Freezer', stars:'3-star', compressor:'Twin Inverter',
+      defrost:'Frost Free', warranty:'1 year + 10 years compressor', features:'8-in-1 Convertible, Magic Cooling, Inverter' },
+    pros:['Bottom freezer means less bending for daily items','Convertible modes (vacation, deep freeze)','Twin inverter compressor','Sleek design'],
+    cons:['3-star only','Bottom freezer model is rare so service parts can take time','Premium pricing for size'],
+    verdict:'Best ergonomic choice if you cook daily and reach into the fridge often. Bottom freezer makes daily access easier.' },
+];
+
+/* ---------- ACs ---------- */
+const ACS = [
+  { slug:'daikin-15t-5star-inverter', name:'Daikin 1.5 Ton 5-Star Inverter Split', brand:'Daikin', category:'acs',
+    image:'https://m.media-amazon.com/images/I/41r-xRDvP+L.jpg', releaseYear:2024, basePrice:48990,
+    tags:['split','inverter','5-star','copper'],
+    specs:{ capacity:'1.5 Ton', type:'Split AC', stars:'5-star', tech:'Inverter', coil:'Copper',
+      warranty:'1 year + 5 years on PCB + 10 years on compressor', features:'PM 2.5 filter, Coanda airflow, Power Chill, Auto-Restart',
+      iseer:'5.2', noise:'29 dB' },
+    pros:['Industry-best 5.2 ISEER rating','Daikin compressor reliability','Whisper-quiet at 29 dB','Strong service network in metros'],
+    cons:['Expensive vs Voltas/LG at same tonnage','No WiFi','Indoor unit design is utilitarian'],
+    verdict:'The reliability benchmark. Daikin ACs typically outlast competitors by 3-4 years. Best if you plan to stay 7+ years.' },
+  { slug:'lg-1t-3star-window', name:'LG 1 Ton 3-Star Window AC', brand:'LG', category:'acs',
+    image:'https://m.media-amazon.com/images/I/41O3vGdWO6L.jpg', releaseYear:2023, basePrice:25990,
+    tags:['window','non-inverter','3-star','budget'],
+    specs:{ capacity:'1 Ton', type:'Window AC', stars:'3-star', tech:'Fixed Speed', coil:'Copper',
+      warranty:'1 year + 1 year on PCB + 5 years on compressor', features:'Anti-Virus filter, Auto-Restart, Sleep mode',
+      iseer:'3.4', noise:'52 dB' },
+    pros:['Cheapest path to a 1-ton AC','Easy install in window-equipped rooms','Less invasive than split installation','Stable 3-star efficiency'],
+    cons:['Loud at 52 dB','3-star only, higher running costs','Reduces window light','No inverter for variable load'],
+    verdict:'Window ACs are mostly dying out, but for a single-bedroom rental this is the cheapest cooling solution.' },
+  { slug:'voltas-15t-3star-split', name:'Voltas 1.5 Ton 3-Star Inverter Split', brand:'Voltas', category:'acs',
+    image:'https://m.media-amazon.com/images/I/41sEVHxqssL.jpg', releaseYear:2024, basePrice:33490,
+    tags:['split','inverter','3-star','value'],
+    specs:{ capacity:'1.5 Ton', type:'Split AC', stars:'3-star', tech:'Inverter', coil:'Copper',
+      warranty:'1 year + 5 years on PCB + 10 years on compressor', features:'Adjustable Modes, Anti-Dust filter, Sleep mode, Turbo Cooling',
+      iseer:'3.6', noise:'42 dB' },
+    pros:['Best-known Indian AC brand with widest service network','Inverter at non-inverter prices','Tata-backed reliability','Adjustable modes for monsoon'],
+    cons:['3-star efficiency means higher bills','No WiFi','Indoor unit aesthetics dated'],
+    verdict:'Most popular AC in India for a reason. Reliable, cheap to service, and Tata-Voltas after-sales is unmatched in tier-2 cities.' },
+  { slug:'bluestar-2t-5star-inverter', name:'Blue Star 2 Ton 5-Star Inverter Split', brand:'Blue Star', category:'acs',
+    image:'https://m.media-amazon.com/images/I/41Z8C-oh-ML.jpg', releaseYear:2024, basePrice:62990,
+    tags:['split','inverter','5-star','large-room'],
+    specs:{ capacity:'2 Ton', type:'Split AC', stars:'5-star', tech:'Inverter', coil:'Copper',
+      warranty:'1 year + 5 years on PCB + 10 years on compressor', features:'iFeel, Hot & Cold, Comfort Sleep, 5-in-1 Convertible',
+      iseer:'5.0', noise:'45 dB' },
+    pros:['2-ton tonnage cools large 200+ sqft rooms','5-in-1 convertible adapts to load','Hot & Cold mode for North India winters','Strong 5.0 ISEER'],
+    cons:['Expensive','2-ton is overkill for sub-150 sqft rooms','Heavier outdoor unit'],
+    verdict:'For drawing rooms, master bedrooms, or top-floor flats in North/Central India where 1.5 ton struggles.' },
+];
+
+const PRODUCTS = [...PHONES, ...TVS, ...WASHING_MACHINES, ...REFRIGERATORS, ...ACS];
+
+/* ---------- Launch dates (real, hand-curated) ---------- */
+const LAUNCH_DATES = {
+  'samsung-galaxy-s24-fe':       '2024-10-08',
+  'apple-iphone-15':             '2023-09-22',
+  'oneplus-12r':                 '2024-01-23',
+  'xiaomi-redmi-note-13-pro-5g': '2024-01-04',
+  'google-pixel-8a':             '2024-05-14',
+  'vivo-v30-pro-5g':             '2024-03-07',
+  'realme-narzo-70-pro-5g':      '2024-03-19',
+  'samsung-galaxy-m35-5g':       '2024-07-09',
+  'nothing-phone-2a':            '2024-03-05',
+  'iqoo-neo-9-pro':              '2024-02-22',
+  'apple-iphone-15-pro':         '2023-09-22',
+  'oneplus-nord-ce-4':           '2024-04-01',
+  'samsung-crystal-50':          '2024-03-15',
+  'lg-oled-c3-55':               '2023-04-26',
+  'sony-bravia-xr-65':           '2023-05-10',
+  'xiaomi-x-pro-43':             '2024-02-14',
+  'lg-7kg-front-load':           '2024-01-10',
+  'samsung-8kg-top-load':        '2023-08-21',
+  'whirlpool-65kg-semi-auto':    '2023-06-05',
+  'ifb-6kg-front-load':          '2023-09-12',
+  'lg-240l-double-door':         '2024-02-28',
+  'samsung-215l-single-door':    '2024-03-18',
+  'whirlpool-185l-direct-cool':  '2023-04-22',
+  'haier-256l-side-by-side':     '2024-04-30',
+  'daikin-15t-5star-inverter':   '2024-02-12',
+  'lg-1t-3star-window':          '2023-03-05',
+  'voltas-15t-3star-split':      '2024-02-20',
+  'bluestar-2t-5star-inverter':  '2024-03-12',
+};
+
+/* ---------- SKU helpers ---------- */
+const CATEGORY_PREFIX = { phones:'PHN', tvs:'TVS', 'washing-machines':'WSH', refrigerators:'RFG', acs:'ACS' };
+function generateSku(category, index) {
+  return `KQ-${CATEGORY_PREFIX[category] || 'PRD'}-${String(index + 1).padStart(4, '0')}`;
+}
+
+/* ---------- Exclude filter rules per category ----------
+ * Each rule has a label and a `match(p)` function. If match returns true,
+ * the product is EXCLUDED when that rule is active.
+ */
+const EXCLUDE_FILTERS = {
+  phones: [
+    { id:'mediatek',   label:'MediaTek chipsets',          match:p => /mediatek|dimensity|helio/i.test(p.specs.chipset || '') },
+    { id:'exynos',     label:'Exynos chipsets',            match:p => /exynos/i.test(p.specs.chipset || '') },
+    { id:'no-5g',      label:'Phones without 5G',          match:p => !p.specs.fiveG },
+    { id:'small-batt', label:'Battery under 4500 mAh',     match:p => (p.specs.battery || 0) < 4500 },
+    { id:'no-ip',      label:'No IP68 water resistance',   match:p => p.specs.ip !== 'IP68' },
+    { id:'low-ram',    label:'Less than 8 GB RAM',         match:p => (p.specs.ram || 0) < 8 },
+    { id:'no-wireless',label:'No wireless charging',       match:p => p.specs.wireless !== true },
+  ],
+  tvs: [
+    { id:'not-4k',     label:'Sub-4K resolution',          match:p => !/2160|4K/i.test(p.specs.resolution || '') },
+    { id:'60hz',       label:'60Hz panels',                match:p => (p.specs.refreshRate || 0) <= 60 },
+    { id:'no-dolby',   label:'No Dolby Vision',            match:p => !/dolby/i.test(p.specs.hdr || '') },
+    { id:'led-only',   label:'Standard LED only (no OLED/QLED)', match:p => !/oled|qled|mini/i.test(p.specs.panel || '') },
+  ],
+  'washing-machines': [
+    { id:'top-load',   label:'Top-load machines',          match:p => /top load/i.test(p.specs.type || '') },
+    { id:'semi-auto',  label:'Semi-automatic',             match:p => /semi/i.test(p.specs.type || '') },
+    { id:'no-inverter',label:'No inverter motor',          match:p => !/inverter|direct drive/i.test(p.specs.motor || '') },
+    { id:'low-star',   label:'Less than 5-star',           match:p => !/5/.test(p.specs.energy || '') },
+  ],
+  refrigerators: [
+    { id:'single-door',label:'Single-door units',          match:p => /single door/i.test(p.specs.type || '') },
+    { id:'direct-cool',label:'Direct cool (manual defrost)',match:p => /direct cool|manual/i.test((p.specs.defrost || '') + (p.specs.type || '')) },
+    { id:'low-star-r', label:'Less than 4-star',           match:p => !/[45].star/i.test(p.specs.stars || '') },
+  ],
+  acs: [
+    { id:'window-ac',  label:'Window ACs',                 match:p => /window/i.test(p.specs.type || '') },
+    { id:'non-inverter',label:'Non-inverter / fixed-speed',match:p => !/inverter/i.test(p.specs.tech || '') },
+    { id:'low-star-ac',label:'Less than 5-star',           match:p => !/5/.test(p.specs.stars || '') },
+    { id:'low-iseer',  label:'ISEER below 4.5',            match:p => parseFloat(p.specs.iseer || '0') < 4.5 },
+  ],
+};
+
+PRODUCTS.forEach((p, i) => {
+  p.sku = generateSku(p.category, i);
+  p.launchDate = LAUNCH_DATES[p.slug] || `${p.releaseYear}-06-15`;
+  p.listings = makeListings(p.basePrice, (i + 1) * 13);
+  p.priceHistory = generatePriceHistory(p.basePrice, (i + 1) * 17);
+  const ratings = p.listings.filter(l => l.rating).map(l => l.rating);
+  p.avgRating = ratings.reduce((a,b)=>a+b,0) / ratings.length;
+  p.totalReviews = p.listings.reduce((s, l) => s + (l.reviews || 0), 0);
+  const inStock = p.listings.filter(l => l.inStock && l.price);
+  p.lowest = inStock.length ? inStock.reduce((a, b) => a.price < b.price ? a : b) : null;
+});
+
+const BRANDS_BY_CATEGORY = {};
+CATEGORIES.forEach(c => {
+  BRANDS_BY_CATEGORY[c.slug] = [...new Set(PRODUCTS.filter(p => p.category === c.slug).map(p => p.brand))].sort();
+});
+
+/* =====================================================================
+ * STATE + PERSISTENCE
+ * ===================================================================== */
+
+const state = {
+  voltMessages: [],
+  filters: { brand:null, priceMin:null, priceMax:null, search:'', exclude:[] },
+  compareList: JSON.parse(localStorage.getItem('kayaq-compare') || '[]'),
+  currentUser: JSON.parse(localStorage.getItem('kayaq-user') || 'null'),
+  reviews: JSON.parse(localStorage.getItem('kayaq-reviews') || '{}'),
+  alerts: JSON.parse(localStorage.getItem('kayaq-alerts') || '[]'),
+  wizardStep: 0,
+  wizardAnswers: {},
+  lastQuery: null, // raw text or wizard-derived requirement, used to score listings
+};
+
+const persist = {
+  compare: () => localStorage.setItem('kayaq-compare', JSON.stringify(state.compareList)),
+  user:    () => localStorage.setItem('kayaq-user', JSON.stringify(state.currentUser)),
+  reviews: () => localStorage.setItem('kayaq-reviews', JSON.stringify(state.reviews)),
+  alerts:  () => localStorage.setItem('kayaq-alerts', JSON.stringify(state.alerts)),
+};
+
+/* =====================================================================
+ * VOLT. Mock AI assistant (quick chat + research wizard)
+ * ===================================================================== */
+
+function detectCategory(text) {
+  const t = text.toLowerCase();
+  if (/wash|clothes|laundry/.test(t)) return 'washing-machines';
+  if (/fridge|refrig/.test(t)) return 'refrigerators';
+  if (/\bac\b|air condition/.test(t)) return 'acs';
+  if (/\btv\b|television|smart tv|oled/.test(t)) return 'tvs';
+  if (/phone|mobile|iphone|samsung|gaming|camera/.test(t)) return 'phones';
+  return 'phones';
+}
+
+function detectBudget(text) {
+  const m = text.toLowerCase().match(/(?:under|below|less than|<)\s*[₹]?\s*(\d{1,4})\s*(?:k|000|,000)?/);
+  if (!m) return null;
+  let n = parseInt(m[1]);
+  if (n < 1000) n *= 1000;
+  return n;
+}
+
+function quickRecommend(message) {
+  const m = message.toLowerCase();
+  const category = detectCategory(message);
+  const budget = detectBudget(message);
+  let candidates = PRODUCTS.filter(p => p.category === category);
+
+  if (budget) candidates = candidates.filter(p => p.lowest && p.lowest.price <= budget);
+
+  // Tag scoring based on intent keywords
+  const intentTags = [];
+  if (/gaming|game|pubg|bgmi/.test(m))   intentTags.push('gaming','performance','5g');
+  if (/camera|photo|portrait/.test(m))   intentTags.push('camera','video');
+  if (/battery|long.?lasting/.test(m))   intentTags.push('battery');
+  if (/budget|cheap|value/.test(m))      intentTags.push('value','budget');
+  if (/premium|flagship/.test(m))        intentTags.push('premium','flagship');
+  if (/design|stylish/.test(m))          intentTags.push('design','lifestyle');
+  if (/large family|big family/.test(m)) intentTags.push('large-capacity');
+  if (/inverter/.test(m))                intentTags.push('inverter');
+
+  // Score each candidate from 0 to 10 based on requirement match
+  candidates.forEach(p => {
+    p._matchScore = computeMatchScore(p, { intentTags, budget, raw: m });
+  });
+  candidates.sort((a, b) => b._matchScore - a._matchScore);
+
+  let intro;
+  if (budget) intro = `Under ₹${budget.toLocaleString('en-IN')}, here's my research with a fit score for each:`;
+  else if (intentTags.includes('gaming')) intro = `Researched the catalogue for gaming-first picks. Top 3 with how closely each matches:`;
+  else if (intentTags.includes('camera')) intro = `Camera-first picks across the catalogue, scored on requirement fit:`;
+  else if (intentTags.includes('battery')) intro = `Battery champions in this category, scored on fit:`;
+  else intro = `Top-rated picks in our ${categoryName(category)} catalogue:`;
+
+  state.lastQuery = { text: message, intentTags, budget, category };
+
+  return {
+    intro,
+    recs: candidates.slice(0, 3).map(p => ({
+      slug: p.slug, name: p.name, price: p.lowest?.price ?? null,
+      pros: p.pros || [], cons: p.cons || [],
+      reason: oneLineReason(p, intentTags),
+      matchScore: p._matchScore,
+    })),
+    followUp: 'Scores out of 10. Want a deeper analysis with specific requirements? Start the guided research →',
+  };
+}
+
+/**
+ * Match score 0-10 based on:
+ *  - tag matches with intent (up to 5 pts)
+ *  - budget fit, the more comfortably under-budget, the better (up to 2.5 pts)
+ *  - average rating boost (up to 1.5 pts)
+ *  - tie-breaking small priors (1 pt)
+ */
+function computeMatchScore(product, ctx) {
+  const { intentTags = [], budget, priorityTags = [], useCases = [] } = ctx;
+  let score = 0;
+
+  // Tag overlap: heaviest weight goes to direct intent tags
+  const tagSources = [...new Set([...intentTags, ...priorityTags])];
+  if (tagSources.length) {
+    const matches = product.tags.filter(t => tagSources.includes(t)).length;
+    score += Math.min(5, matches * 1.7);
+  } else {
+    score += 1.5; // neutral baseline when no specific intent
+  }
+
+  // Use-case soft match
+  if (useCases.length) {
+    const ucMatches = useCases.filter(uc =>
+      product.tags.some(t => t.includes(uc.toLowerCase().split(' ')[0]))
+    ).length;
+    score += Math.min(1.5, ucMatches * 0.5);
+  }
+
+  // Budget fit
+  if (budget && product.lowest?.price) {
+    if (product.lowest.price > budget) score += 0;
+    else {
+      const headroom = (budget - product.lowest.price) / budget;
+      score += Math.min(2.5, 1.5 + headroom * 4);
+    }
+  } else {
+    score += 1;
+  }
+
+  // Rating boost
+  score += Math.min(1.5, ((product.avgRating || 4.0) - 3.5) * 1.5);
+
+  return Math.max(1, Math.min(10, Math.round(score * 10) / 10));
+}
+
+function categoryName(slug) {
+  return CATEGORIES.find(c => c.slug === slug)?.name || slug;
+}
+
+function oneLineReason(product, intentTags) {
+  if (intentTags.includes('gaming') && product.tags.includes('gaming')) return 'Built for gaming with high refresh display and flagship chip.';
+  if (intentTags.includes('camera') && product.tags.includes('camera')) return 'Strongest camera system in this price band.';
+  if (intentTags.includes('battery') && product.tags.includes('battery')) return 'Largest battery in the segment with fast charging.';
+  return product.verdict?.split('.')[0] || 'Strong all-rounder.';
+}
+
+function wizardRecommend(answers) {
+  const { category, budgetMax, priorities = [], useCases = [] } = answers;
+  let candidates = PRODUCTS.filter(p => p.category === category);
+  if (budgetMax) candidates = candidates.filter(p => p.lowest && p.lowest.price <= budgetMax);
+
+  // Map priorities to product tags
+  const priorityToTag = {
+    'Performance': ['performance','gaming'], 'Battery': ['battery'],
+    'Camera': ['camera','video'], 'Design': ['design','lifestyle','premium'],
+    'Brand reputation': ['premium','flagship'], 'Service network': [],
+    'Energy efficiency': ['5-star'], 'Smart features': ['ai','wifi','smart-tv'],
+    'Value for money': ['value','budget'], 'Premium feel': ['premium','flagship'],
+    'Large capacity': ['large-capacity'], 'Long warranty': [],
+    'Picture quality': ['oled','premium','dolby-vision'],
+    'Gaming features': ['gaming','120hz'],
+    'Sound quality': ['premium'],
+    'Quick wash': [],
+    'Frost free': ['frost-free'],
+    'Cooling speed': ['inverter'],
+    'Quiet operation': [],
+  };
+  const priorityTags = priorities.flatMap(p => priorityToTag[p] || [p.toLowerCase()]);
+
+  candidates.forEach(p => {
+    p._matchScore = computeMatchScore(p, { intentTags: priorityTags, priorityTags, useCases, budget: budgetMax });
+  });
+  candidates.sort((a, b) => b._matchScore - a._matchScore);
+
+  const top3 = candidates.slice(0, 3);
+  const summary = buildWizardSummary(answers, top3);
+
+  state.lastQuery = { fromWizard: true, ...answers, intentTags: priorityTags };
+
+  return {
+    intro: summary,
+    recs: top3.map(p => ({
+      slug: p.slug, name: p.name, price: p.lowest?.price ?? null,
+      pros: p.pros || [], cons: p.cons || [],
+      reason: matchReason(p, answers),
+      matchScore: p._matchScore,
+    })),
+    followUp: 'Scores reflect how closely each match your stated requirements. Click any product to see full specs, prices and reviews.',
+  };
+}
+
+function buildWizardSummary(a, top3) {
+  if (top3.length === 0) return `Nothing in our ${categoryName(a.category)} catalogue matches all your filters. Try increasing the budget or removing a priority.`;
+  const cat = categoryName(a.category).toLowerCase();
+  const budget = a.budgetMax ? ` under ₹${a.budgetMax.toLocaleString('en-IN')}` : '';
+  const priorityLine = a.priorities?.length ? ` prioritising ${a.priorities.slice(0, 3).join(', ').toLowerCase()}` : '';
+  return `Researched ${top3.length} ${cat}${budget}${priorityLine}. Here's my top 3 with the why behind each pick.`;
+}
+
+function matchReason(p, answers) {
+  const matches = [];
+  if (answers.priorities?.includes('Battery') && p.tags.includes('battery')) matches.push('battery champion');
+  if (answers.priorities?.includes('Camera') && p.tags.includes('camera')) matches.push('camera-first');
+  if (answers.priorities?.includes('Performance') && p.tags.includes('performance')) matches.push('performance machine');
+  if (answers.priorities?.includes('Design') && (p.tags.includes('design') || p.tags.includes('premium'))) matches.push('standout design');
+  if (matches.length) return `Matches your priorities: ${matches.join(' + ')}.`;
+  return p.verdict?.split('.')[0] || 'Strong all-rounder.';
+}
+
+/* =====================================================================
+ * UTILS
+ * ===================================================================== */
+
+const formatINR = (n) => n == null ? '-' :
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+
+const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c =>
+  ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]));
+
+function navigate(hash) { window.location.hash = hash; }
+
+function getProductReviews(slug) {
+  return state.reviews[slug] || [];
+}
+
+function renderScoreBadge(score) {
+  const s = Math.max(0, Math.min(10, score));
+  const tier = s >= 8.5 ? 'emerald' : s >= 7 ? 'volt' : s >= 5 ? 'amber' : 'ink';
+  const colors = {
+    emerald: 'bg-emerald-100 text-emerald-800',
+    volt:    'bg-volt-50 text-volt-700',
+    amber:   'bg-amber-100 text-amber-800',
+    ink:     'bg-ink-100 text-ink-700',
+  };
+  return `<span title="How closely this matches your stated requirements" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${colors[tier]}">
+    ${s.toFixed(1)} <span class="opacity-50 text-[9px]">/ 10</span>
+  </span>`;
+}
+
+function formatLaunchDate(iso) {
+  if (!iso) return '-';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' });
+}
+
+/* =====================================================================
+ * NEXT-GEN AI FEATURES
+ * ===================================================================== */
+
+/**
+ * AI Deal Score: position the current lowest price within the 30-day price band
+ * across all platforms. Returns a 1-10 score and a plain-language verdict.
+ */
+function computeDealScore(p) {
+  const all = p.priceHistory.flatMap(h => Object.keys(PLATFORMS).map(k => h[k])).filter(Boolean);
+  if (!all.length) return null;
+  const lo = Math.min(...all);
+  const hi = Math.max(...all);
+  const current = p.lowest?.price ?? lo;
+  if (hi === lo) return { score: 5, verdict: 'Price has been flat for 30 days.', tier: 'volt', lo, hi, current };
+  const pos = Math.max(0, Math.min(1, (current - lo) / (hi - lo)));
+  const score = Math.max(1, Math.min(10, Math.round((10 - pos * 9) * 10) / 10));
+  let verdict, tier;
+  if (score >= 8.5)      { verdict = 'Great time to buy. Price is near the 30-day low.'; tier = 'emerald'; }
+  else if (score >= 7)   { verdict = 'Reasonable. Slightly above the recent low.';        tier = 'volt'; }
+  else if (score >= 5)   { verdict = 'Lukewarm. Has been cheaper in the last month.';     tier = 'amber'; }
+  else                   { verdict = 'Near the 30-day high. Wait for a drop if you can.'; tier = 'rose'; }
+  return { score, verdict, tier, lo, hi, current };
+}
+
+/**
+ * AI Review Summary: synthesised TL;DR from aggregated user reviews.
+ * In the mock, we re-flavor the curated pros/cons in "buyers say" voice.
+ */
+function computeAiReviewSummary(p) {
+  const praise = (p.pros || []).slice(0, 3);
+  const complaints = (p.cons || []).slice(0, 2);
+  // Sentiment: pros count vs cons, weighted by aggregate rating
+  const sentimentScore = Math.round(((p.avgRating || 4) - 3) * 25 + (praise.length - complaints.length) * 5);
+  const sentiment = Math.max(0, Math.min(100, sentimentScore + 60));
+  return { praise, complaints, sentiment, totalReviews: p.totalReviews };
+}
+
+/**
+ * AI Total Cost of Ownership over 5 years.
+ * Only applies to appliances (TV, AC, washing machine, refrigerator).
+ */
+function computeTCO(p) {
+  if (p.category === 'phones') return null;
+  const purchase = p.lowest?.price ?? 0;
+  let annualKwh = 0, usage = '';
+  if (p.category === 'acs') {
+    const tons = parseFloat(p.specs.capacity) || 1.5;
+    const stars = parseInt((p.specs.stars || '').match(/\d/)?.[0]) || 3;
+    annualKwh = Math.round(tons * 720 * Math.max(0.55, 1 - (stars - 3) * 0.10));
+    usage = '6 hours a day, 6 months a year';
+  } else if (p.category === 'refrigerators') {
+    const stars = parseInt((p.specs.stars || '').match(/\d/)?.[0]) || 3;
+    const liters = parseInt(p.specs.capacity) || 220;
+    annualKwh = Math.round((liters / 100) * 330 * Math.max(0.55, 1 - (stars - 3) * 0.12));
+    usage = '24x7 always on';
+  } else if (p.category === 'washing-machines') {
+    annualKwh = 220;
+    usage = 'About 5 loads per week';
+  } else if (p.category === 'tvs') {
+    const inches = parseInt(p.specs.size) || 50;
+    annualKwh = Math.round(inches * 4.5);
+    usage = '4 hours a day';
+  }
+  const rate = 8; // INR per kWh, India urban average
+  const annualCost = annualKwh * rate;
+  const fiveYearTCO = purchase + annualCost * 5;
+  return { purchase, annualKwh, annualCost, fiveYearTCO, usage, rate };
+}
+
+/**
+ * Conversational refinement: build 3 to 4 chips that would refine
+ * the most recent Volt query.
+ */
+function buildRefinementChips(query) {
+  if (!query) return [];
+  const chips = [];
+  const cat = query.category || query.fromWizard && query.category || 'phones';
+  const budget = query.budget || query.budgetMax;
+
+  if (budget) {
+    chips.push({
+      label: `Increase budget to ₹${Math.round(budget * 1.25 / 1000)}k`,
+      msg: `Same requirement but my budget is now ₹${Math.round(budget * 1.25)}.`
+    });
+    chips.push({
+      label: 'Show cheaper options',
+      msg: `Same need but only options under ₹${Math.round(budget * 0.75)}.`
+    });
+  }
+  chips.push({ label: 'Only highest rated', msg: 'Refine: only the highest rated options.' });
+
+  if (cat === 'phones')                 chips.push({ label: 'Skip MediaTek',          msg: 'Same requirement, exclude MediaTek chipsets.' });
+  else if (cat === 'acs')               chips.push({ label: 'Only 5-star inverter',   msg: 'Same requirement, only 5-star inverter ACs.' });
+  else if (cat === 'tvs')               chips.push({ label: 'OLED only',              msg: 'Same requirement, only OLED TVs.' });
+  else if (cat === 'washing-machines')  chips.push({ label: 'Front load only',        msg: 'Same requirement, only front-load machines.' });
+  else if (cat === 'refrigerators')     chips.push({ label: 'Double door only',       msg: 'Same requirement, only double-door fridges.' });
+
+  return chips.slice(0, 4);
+}
+
+/**
+ * Voice input via Web Speech API. No-op gracefully when unsupported.
+ */
+let _voltRecognition = null;
+function getVoiceRecognition() {
+  if (_voltRecognition) return _voltRecognition;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  _voltRecognition = new SR();
+  _voltRecognition.lang = 'en-IN';
+  _voltRecognition.continuous = false;
+  _voltRecognition.interimResults = false;
+  return _voltRecognition;
+}
+
+function toggleVoiceInput() {
+  const rec = getVoiceRecognition();
+  const btn = document.getElementById('voice-btn');
+  if (!rec) {
+    alert('Voice input is not supported in this browser. Try Chrome.');
+    return;
+  }
+  const input = document.getElementById('volt-input');
+  rec.onresult = (e) => {
+    const text = e.results[0][0].transcript;
+    if (input) {
+      input.value = text;
+      input.focus();
+    }
+  };
+  const stopVisuals = () => {
+    btn?.classList.remove('ring-2','ring-rose-400','animate-pulse');
+    btn?.removeAttribute('data-listening');
+  };
+  rec.onerror = stopVisuals;
+  rec.onend = stopVisuals;
+  if (btn?.dataset.listening === '1') {
+    rec.stop(); stopVisuals(); return;
+  }
+  rec.start();
+  btn?.classList.add('ring-2','ring-rose-400','animate-pulse');
+  if (btn) btn.dataset.listening = '1';
+}
+
+function avgUserRating(slug) {
+  const list = getProductReviews(slug);
+  if (!list.length) return null;
+  return list.reduce((s, r) => s + r.rating, 0) / list.length;
+}
+
+/* =====================================================================
+ * NAV + FOOTER + COMPARE BAR
+ * ===================================================================== */
+
+function renderNavbar() {
+  const path = window.location.hash || '#/';
+  const isActive = (h) => path === h ? 'text-ink-900 font-medium' : 'text-ink-500 hover:text-ink-900';
+  const userBlock = state.currentUser
+    ? `<div class="flex items-center gap-3">
+         <span class="hidden md:inline text-sm text-ink-700">Hi, ${escapeHtml(state.currentUser.name)}</span>
+         <button id="logout-btn" class="text-xs text-ink-500 underline hover:text-ink-900">Sign out</button>
+       </div>`
+    : `<a data-link href="#/login" class="text-sm text-ink-700 hover:text-ink-900">Sign in</a>`;
+
+  const categoryLinks = CATEGORIES.map(c => `
+    <a data-link href="#/category/${c.slug}" class="${isActive('#/category/'+c.slug)} text-sm transition">
+      ${escapeHtml(c.name)}
+    </a>
+  `).join('');
+
+  return `
+    <header class="sticky top-0 z-30 border-b border-ink-100 bg-white/80 backdrop-blur">
+      <div class="container-tight flex h-16 items-center justify-between gap-6">
+        <a data-link href="#/" class="flex items-center gap-2 text-lg font-semibold tracking-tight shrink-0">
+          <span class="grid h-7 w-7 place-items-center rounded-lg bg-ink-900 text-white">
+            <svg viewBox="0 0 32 32" class="h-4 w-4">
+              <path d="M11 8 L11 24 M11 16 L21 8 M11 16 L21 24" stroke="#5b6cff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+          </span>
+          KayaqAI
+        </a>
+        <nav class="hidden items-center gap-5 md:flex">${categoryLinks}</nav>
+        <div class="flex items-center gap-4">
+          ${userBlock}
+        </div>
+      </div>
+    </header>
+  `;
+}
+
+function renderFooter() {
+  return `
+    <footer class="mt-32 border-t border-ink-100 py-12">
+      <div class="container-tight flex flex-col items-center gap-4 text-sm text-ink-500 md:flex-row md:justify-between">
+        <p>© ${new Date().getFullYear()} KayaqAI. Made for India.</p>
+        <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          <a href="/about.html" class="hover:text-ink-900">About</a>
+          <a href="/privacy.html" class="hover:text-ink-900">Privacy</a>
+          <a href="/terms.html" class="hover:text-ink-900">Terms</a>
+          <a href="/contact.html" class="hover:text-ink-900">Contact</a>
+        </nav>
+      </div>
+      <div class="container-tight mt-4 text-center text-xs text-ink-400">
+        Affiliate disclosure: KayaqAI participates in the Amazon Associates and Flipkart Affiliate programmes. We may earn a commission when you click through and complete a purchase. This does not influence our recommendations.
+      </div>
+    </footer>
+  `;
+}
+
+function renderCompareBar() {
+  const root = document.getElementById('compare-bar-root');
+  if (!root) return;
+  if (state.compareList.length === 0) { root.innerHTML = ''; return; }
+  const items = state.compareList
+    .map(slug => PRODUCTS.find(p => p.slug === slug))
+    .filter(Boolean);
+  root.innerHTML = `
+    <div class="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 fade-up">
+      <div class="card flex items-center gap-3 p-3 px-5 shadow-glow">
+        <div class="flex items-center gap-2">
+          ${items.map(p => `
+            <div class="relative">
+              <div class="grid h-10 w-10 place-items-center overflow-hidden rounded-lg bg-ink-50">
+                <img src="${p.image}" class="h-full w-full object-contain p-1" />
+              </div>
+              <button class="compare-remove absolute -top-1.5 -right-1.5 grid h-5 w-5 place-items-center rounded-full bg-ink-900 text-white text-xs leading-none" data-slug="${p.slug}" title="Remove">×</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="text-sm font-medium text-ink-900">${items.length} to compare</div>
+        <button id="compare-clear" class="text-xs text-ink-500 underline hover:text-ink-900">Clear</button>
+        <a data-link href="#/compare" class="btn-primary !py-2 !px-4 text-xs ${items.length < 2 ? 'opacity-30 pointer-events-none' : ''}">Compare ${items.length < 2 ? '(add 2+)' : 'now'}</a>
+      </div>
+    </div>
+  `;
+  root.querySelectorAll('.compare-remove').forEach(b => {
+    b.addEventListener('click', () => toggleCompare(b.dataset.slug));
+  });
+  root.querySelector('#compare-clear')?.addEventListener('click', () => {
+    state.compareList = []; persist.compare(); renderCompareBar(); render();
+  });
+  root.querySelectorAll('[data-link]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const href = el.getAttribute('href');
+      if (href?.startsWith('#/')) { e.preventDefault(); navigate(href); window.scrollTo(0,0); }
+    });
+  });
+}
+
+function toggleCompare(slug) {
+  const i = state.compareList.indexOf(slug);
+  if (i >= 0) state.compareList.splice(i, 1);
+  else if (state.compareList.length < 3) state.compareList.push(slug);
+  else { alert('You can compare up to 3 products at a time.'); return; }
+  persist.compare();
+  renderCompareBar();
+  render(); // refresh buttons
+}
+
+/* =====================================================================
+ * LANDING
+ * ===================================================================== */
+
+const EXAMPLES_BY_CATEGORY = {
+  phones: ['Best phone under ₹20,000 for gaming', 'iPhone or Samsung flagship for camera?', 'Phone with biggest battery under ₹15k'],
+};
+
+function renderLanding() {
+  const examples = ['Best phone under ₹20,000 for gaming', 'Best 5-star inverter AC for a 150 sqft bedroom', 'Front load washing machine for a family of 4', '50 inch 4K TV for movies'];
+  return `
+    <section class="relative overflow-hidden pt-20 pb-24">
+      <div class="hero-blob"></div>
+      <div class="container-tight relative z-10 text-center">
+        <span class="chip mb-6">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+          Powered by Volt, your AI buying assistant
+        </span>
+        <h1 class="font-display text-5xl font-bold leading-[1.05] tracking-tight md:text-7xl">
+          Your AI assistant<br/>to shortlist and buy.
+        </h1>
+        <p class="mx-auto mt-6 max-w-xl text-lg text-ink-500 md:text-xl">
+          Tell Volt what you need. Get a thorough, scored shortlist across key Indian retailers, with the pros, the cons, and exactly why each one made the cut.
+        </p>
+
+        <div class="mt-12 mx-auto w-full max-w-3xl">
+          <div id="volt-conversation" class="${state.voltMessages.length ? '' : 'hidden'} card mb-4 max-h-[460px] overflow-y-auto p-6 text-left"></div>
+
+          <form id="volt-form" class="card flex items-end gap-3 p-3" style="box-shadow: 0 0 0 1px rgba(91,108,255,0.15), 0 8px 40px rgba(91,108,255,0.18);">
+            <div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-volt-50 text-volt-600">
+              ${categoryIcon('sparkle','h-5 w-5')}
+            </div>
+            <textarea id="volt-input" rows="1" placeholder="Ask Volt: best 1.5 ton inverter AC under ₹40k..."
+              class="flex-1 resize-none border-none bg-transparent py-2 text-base placeholder:text-ink-400 focus:outline-none"></textarea>
+            <button type="button" id="voice-btn" title="Speak your requirement"
+              class="grid h-10 w-10 place-items-center rounded-xl border border-ink-200 text-ink-600 transition hover:border-ink-400 hover:text-ink-900">
+              ${categoryIcon('microphone','h-5 w-5')}
+            </button>
+            <button type="submit" class="grid h-10 w-10 place-items-center rounded-xl bg-ink-900 text-white transition hover:bg-ink-700">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-5 w-5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </button>
+          </form>
+
+          <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <button id="open-wizard" class="chip" style="background:#0d0d10; color:white; border-color:#0d0d10;">
+              ★ Start guided research →
+            </button>
+            ${examples.map(ex => `<button class="chip volt-example">${escapeHtml(ex)}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories grid -->
+    <section class="container-tight py-20">
+      <h2 class="mb-2 text-center font-display text-3xl font-semibold tracking-tight md:text-4xl">Browse by category</h2>
+      <p class="mb-10 text-center text-ink-500">Five categories, handpicked SKUs, key retailers in one place.</p>
+      <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
+        ${CATEGORIES.map(c => {
+          const count = PRODUCTS.filter(p => p.category === c.slug).length;
+          return `<a data-link href="#/category/${c.slug}" class="card group flex flex-col items-center gap-3 p-6 transition hover:-translate-y-0.5 hover:shadow-glow">
+            <div class="grid h-14 w-14 place-items-center rounded-2xl bg-ink-900 text-white transition group-hover:bg-volt-600">
+              ${categoryIcon(c.iconKey, 'h-7 w-7')}
+            </div>
+            <h3 class="text-sm font-semibold">${escapeHtml(c.name)}</h3>
+            <span class="text-xs text-ink-500">${count} products</span>
+          </a>`;
+        }).join('')}
+      </div>
+    </section>
+
+    <!-- Value props -->
+    <section class="container-tight grid gap-6 py-20 md:grid-cols-3">
+      ${[
+        ['sparkle','Research, not retail','We do not sell. We compare specs, prices, and reviews so your purchase decision is fully informed.'],
+        ['sparkle','Crowdsourced reviews','Real people, not paid influencers. Sign in and add your own review on any product page.'],
+        ['sparkle','Track every price drop','30 days of price history across Amazon, Flipkart, Croma, Reliance Digital and Vijay Sales.'],
+      ].map(([icon, title, body]) => `
+        <div class="card p-7">
+          <div class="mb-4 grid h-10 w-10 place-items-center rounded-xl bg-ink-900 text-white">${categoryIcon(icon,'h-5 w-5')}</div>
+          <h3 class="text-lg font-semibold">${title}</h3>
+          <p class="mt-2 text-sm leading-relaxed text-ink-500">${body}</p>
+        </div>
+      `).join('')}
+    </section>
+  `;
+}
+
+/* ---- Volt chat conversation ---- */
+
+function renderVoltConversation() {
+  const conv = document.getElementById('volt-conversation');
+  if (!conv) return;
+  conv.innerHTML = state.voltMessages.map(m => {
+    if (m.role === 'user') {
+      return `<div class="mb-4 flex justify-end">
+        <div class="max-w-[85%] rounded-2xl rounded-br-sm bg-ink-900 px-4 py-2.5 text-sm text-white">${escapeHtml(m.content)}</div>
+      </div>`;
+    }
+    if (m.loading) {
+      return `<div class="mb-5 flex items-center gap-2 text-ink-500">
+        <div class="spinner"></div>
+        <span class="text-sm">Volt is researching...</span>
+      </div>`;
+    }
+    const recsHtml = (m.recs || []).map((r, i) => `
+      <div class="card p-5">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <div class="mb-0.5 flex items-center gap-2">
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-volt-600">Pick #${i+1}</span>
+              ${r.matchScore != null ? renderScoreBadge(r.matchScore) : ''}
+            </div>
+            <a data-link href="#/product/${r.slug}" class="text-base font-semibold text-ink-900 hover:underline">${escapeHtml(r.name)}</a>
+            <div class="mt-1 text-sm text-ink-500">${escapeHtml(r.reason)}</div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-sm font-semibold">${formatINR(r.price)}</div>
+            <a data-link href="#/product/${r.slug}" class="text-[11px] text-volt-600 hover:underline">View →</a>
+          </div>
+        </div>
+        ${r.pros?.length || r.cons?.length ? `
+          <div class="mt-4 grid gap-3 sm:grid-cols-2">
+            ${r.pros?.length ? `<div>
+              <div class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-emerald-700">Pros</div>
+              <ul class="space-y-1 text-xs text-ink-700">
+                ${r.pros.slice(0,4).map(p => `<li class="flex gap-1.5"><span class="text-emerald-600">✓</span>${escapeHtml(p)}</li>`).join('')}
+              </ul>
+            </div>` : ''}
+            ${r.cons?.length ? `<div>
+              <div class="mb-1 text-[11px] font-semibold uppercase tracking-wider text-rose-700">Cons</div>
+              <ul class="space-y-1 text-xs text-ink-700">
+                ${r.cons.slice(0,4).map(c => `<li class="flex gap-1.5"><span class="text-rose-500">×</span>${escapeHtml(c)}</li>`).join('')}
+              </ul>
+            </div>` : ''}
+          </div>
+        ` : ''}
+      </div>
+    `).join('');
+    const refineChips = m.recs?.length ? buildRefinementChips(state.lastQuery) : [];
+    const refineHtml = refineChips.length ? `
+      <div class="mt-4 border-t border-ink-100 pt-3">
+        <div class="mb-2 text-[11px] font-semibold uppercase tracking-wider text-ink-500">Refine your search</div>
+        <div class="flex flex-wrap gap-1.5">
+          ${refineChips.map(c => `<button class="refine-chip chip" data-msg="${escapeHtml(c.msg)}">${escapeHtml(c.label)}</button>`).join('')}
+        </div>
+      </div>
+    ` : '';
+    return `<div class="mb-5">
+      <div class="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-volt-600">
+        <svg viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg> Volt
+      </div>
+      <p class="whitespace-pre-wrap text-sm leading-relaxed text-ink-800">${escapeHtml(m.content)}</p>
+      ${recsHtml ? `<div class="mt-4 grid gap-3">${recsHtml}</div>` : ''}
+      ${m.followUp ? `<p class="mt-4 text-sm text-ink-500">${escapeHtml(m.followUp)}</p>` : ''}
+      ${refineHtml}
+    </div>`;
+  }).join('');
+  conv.scrollTop = conv.scrollHeight;
+  // Re-attach link handlers in dynamically rendered area
+  conv.querySelectorAll('[data-link]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const href = el.getAttribute('href');
+      if (href?.startsWith('#/')) { e.preventDefault(); navigate(href); window.scrollTo(0,0); }
+    });
+  });
+  // Refine chips: send their msg as a follow-up query to Volt
+  conv.querySelectorAll('.refine-chip').forEach(el => {
+    el.addEventListener('click', () => sendToVolt(el.dataset.msg));
+  });
+}
+
+function sendToVolt(text) {
+  const message = text.trim();
+  if (!message) return;
+  state.voltMessages.push({ role: 'user', content: message });
+  state.voltMessages.push({ role: 'assistant', loading: true });
+  document.getElementById('volt-conversation')?.classList.remove('hidden');
+  renderVoltConversation();
+  setTimeout(() => {
+    const result = quickRecommend(message);
+    state.voltMessages.pop();
+    state.voltMessages.push({ role: 'assistant', content: result.intro, recs: result.recs, followUp: result.followUp });
+    renderVoltConversation();
+  }, 900);
+}
+
+/* =====================================================================
+ * RESEARCH WIZARD (4 steps, modal)
+ * ===================================================================== */
+
+const WIZARD_PRIORITIES = {
+  phones:           ['Performance','Battery','Camera','Design','Brand reputation','Service network','Value for money','Premium feel'],
+  tvs:              ['Picture quality','Gaming features','Sound quality','Smart features','Brand reputation','Energy efficiency','Value for money'],
+  'washing-machines':['Large capacity','Energy efficiency','Long warranty','Smart features','Quick wash','Value for money','Brand reputation'],
+  refrigerators:    ['Large capacity','Energy efficiency','Long warranty','Smart features','Frost free','Value for money','Brand reputation'],
+  acs:              ['Cooling speed','Energy efficiency','Quiet operation','Service network','Smart features','Value for money','Brand reputation'],
+};
+
+const WIZARD_USE_CASES = {
+  phones:           ['Gaming','Photography','Office work','Streaming','Travel','Family use'],
+  tvs:              ['Movies','Sports','Gaming','News','Casual viewing','Bedroom','Living room'],
+  'washing-machines':['Family of 2','Family of 4','Joint family','Hostel/PG','Heavy soiled clothes','Delicates'],
+  refrigerators:    ['Family of 2','Family of 4','Joint family','Bachelor/PG','Frequent guests','Bulk shopping'],
+  acs:              ['Bedroom (under 150 sqft)','Master bedroom','Living room (200+ sqft)','Top floor','Coastal humid area'],
+};
+
+function openWizard() {
+  state.wizardStep = 0;
+  state.wizardAnswers = { priorities: [], useCases: [] };
+  renderWizardModal();
+}
+
+function renderWizardModal() {
+  const root = document.getElementById('modal-root');
+  const step = state.wizardStep;
+  let body = '';
+  if (step === 0) body = renderWizardStep0();
+  else if (step === 1) body = renderWizardStep1();
+  else if (step === 2) body = renderWizardStep2();
+  else if (step === 3) body = renderWizardStep3();
+  else if (step === 4) body = renderWizardStep4();
+
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-close"></div>
+    <div class="modal-content modal-wide card overflow-hidden">
+      <div class="flex items-center justify-between border-b border-ink-100 p-5">
+        <div>
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-volt-600">Volt's research wizard</div>
+          <div class="text-base font-semibold">${['What are you shopping for?','Your budget','What matters most?','Use case','Researching...'][step]}</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-xs text-ink-500">${Math.min(step+1,4)} of 4</div>
+          <button id="wizard-close" class="text-ink-400 hover:text-ink-700 text-2xl leading-none">×</button>
+        </div>
+      </div>
+      <div class="px-5 pt-3">
+        <div class="h-1 w-full overflow-hidden rounded-full bg-ink-100">
+          <div class="h-full bg-volt-500 transition-all" style="width:${Math.min((step+1)/4*100,100)}%"></div>
+        </div>
+      </div>
+      <div class="p-6">${body}</div>
+    </div>
+  `;
+  document.getElementById('modal-close')?.addEventListener('click', closeModal);
+  document.getElementById('wizard-close')?.addEventListener('click', closeModal);
+  attachWizardEvents();
+}
+
+function renderWizardStep0() {
+  return `
+    <p class="mb-5 text-sm text-ink-500">Pick the category, and Volt will tailor the next questions.</p>
+    <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+      ${CATEGORIES.map(c => `
+        <button data-wizard-category="${c.slug}" class="wizard-category card flex flex-col items-center gap-2 p-5 transition hover:border-volt-500 hover:shadow-glow ${state.wizardAnswers.category === c.slug ? 'border-volt-500 ring-2 ring-volt-500/20' : ''}">
+          <div class="grid h-12 w-12 place-items-center rounded-xl bg-ink-900 text-white">${categoryIcon(c.iconKey, 'h-6 w-6')}</div>
+          <div class="text-sm font-semibold">${escapeHtml(c.name)}</div>
+        </button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderWizardStep1() {
+  const ranges = {
+    phones:           [['Under ₹15k', 15000], ['₹15k - 25k', 25000], ['₹25k - 40k', 40000], ['₹40k - 60k', 60000], ['₹60k - 1L', 100000], ['Above ₹1L', 200000]],
+    tvs:              [['Under ₹30k', 30000], ['₹30k - 50k', 50000], ['₹50k - 80k', 80000], ['₹80k - 1.5L', 150000], ['Above ₹1.5L', 300000]],
+    'washing-machines':[['Under ₹15k', 15000], ['₹15k - 25k', 25000], ['₹25k - 40k', 40000], ['Above ₹40k', 80000]],
+    refrigerators:    [['Under ₹20k', 20000], ['₹20k - 30k', 30000], ['₹30k - 50k', 50000], ['Above ₹50k', 100000]],
+    acs:              [['Under ₹30k', 30000], ['₹30k - 45k', 45000], ['₹45k - 60k', 60000], ['Above ₹60k', 100000]],
+  }[state.wizardAnswers.category] || [];
+
+  return `
+    <p class="mb-5 text-sm text-ink-500">Pick your maximum budget. Volt will only recommend products under this.</p>
+    <div class="grid grid-cols-2 gap-2 md:grid-cols-3">
+      ${ranges.map(([label, max]) => `
+        <button data-wizard-budget="${max}" class="wizard-budget rounded-xl border px-4 py-3 text-sm font-medium transition ${state.wizardAnswers.budgetMax === max ? 'border-volt-500 bg-volt-50 text-volt-700' : 'border-ink-200 bg-white text-ink-700 hover:border-ink-400'}">${label}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderWizardStep2() {
+  const opts = WIZARD_PRIORITIES[state.wizardAnswers.category] || [];
+  const selected = state.wizardAnswers.priorities || [];
+  return `
+    <p class="mb-5 text-sm text-ink-500">Pick up to 3 things that matter most. Volt will weight these heavily.</p>
+    <div class="flex flex-wrap gap-2">
+      ${opts.map(o => `
+        <button data-wizard-priority="${escapeHtml(o)}" class="wizard-priority chip ${selected.includes(o) ? 'active' : ''}">${escapeHtml(o)}</button>
+      `).join('')}
+    </div>
+    <div class="mt-3 text-xs text-ink-400">${selected.length} of 3 selected</div>
+  `;
+}
+
+function renderWizardStep3() {
+  const opts = WIZARD_USE_CASES[state.wizardAnswers.category] || [];
+  const selected = state.wizardAnswers.useCases || [];
+  return `
+    <p class="mb-5 text-sm text-ink-500">How will you primarily use it? Pick all that apply, then add anything specific.</p>
+    <div class="flex flex-wrap gap-2">
+      ${opts.map(o => `
+        <button data-wizard-usecase="${escapeHtml(o)}" class="wizard-usecase chip ${selected.includes(o) ? 'active' : ''}">${escapeHtml(o)}</button>
+      `).join('')}
+    </div>
+    <textarea id="wizard-notes" rows="3" placeholder="Anything else? E.g. 'I have hard water', 'I live on top floor in Delhi', 'I edit videos on the side'..."
+      class="mt-5 w-full rounded-xl border border-ink-200 bg-white p-3 text-sm focus:border-ink-400 focus:outline-none">${escapeHtml(state.wizardAnswers.notes || '')}</textarea>
+  `;
+}
+
+function renderWizardStep4() {
+  return `
+    <div class="flex flex-col items-center justify-center gap-4 py-10">
+      <div class="spinner" style="width:32px; height:32px;"></div>
+      <p class="text-sm text-ink-600">Volt is researching ${categoryName(state.wizardAnswers.category)}...</p>
+      <p class="text-xs text-ink-400">Cross-checking specs, prices, and aggregate reviews across retailers.</p>
+    </div>
+  `;
+}
+
+function attachWizardEvents() {
+  // Step 0
+  document.querySelectorAll('.wizard-category').forEach(b => {
+    b.addEventListener('click', () => {
+      state.wizardAnswers.category = b.dataset.wizardCategory;
+      state.wizardStep = 1;
+      renderWizardModal();
+    });
+  });
+  // Step 1
+  document.querySelectorAll('.wizard-budget').forEach(b => {
+    b.addEventListener('click', () => {
+      state.wizardAnswers.budgetMax = parseInt(b.dataset.wizardBudget);
+      state.wizardStep = 2;
+      renderWizardModal();
+    });
+  });
+  // Step 2
+  document.querySelectorAll('.wizard-priority').forEach(b => {
+    b.addEventListener('click', () => {
+      const v = b.dataset.wizardPriority;
+      const arr = state.wizardAnswers.priorities;
+      const i = arr.indexOf(v);
+      if (i >= 0) arr.splice(i, 1);
+      else if (arr.length < 3) arr.push(v);
+      renderWizardModal();
+    });
+  });
+  // Step 3
+  document.querySelectorAll('.wizard-usecase').forEach(b => {
+    b.addEventListener('click', () => {
+      const v = b.dataset.wizardUsecase;
+      const arr = state.wizardAnswers.useCases;
+      const i = arr.indexOf(v);
+      if (i >= 0) arr.splice(i, 1);
+      else arr.push(v);
+      renderWizardModal();
+    });
+  });
+  // Step buttons (back/next/submit)
+  const step = state.wizardStep;
+  const isReady =
+    (step === 0 && state.wizardAnswers.category) ||
+    (step === 1 && state.wizardAnswers.budgetMax) ||
+    (step === 2 && (state.wizardAnswers.priorities || []).length > 0) ||
+    (step === 3);
+  if (step >= 0 && step <= 3) {
+    const root = document.getElementById('modal-root');
+    const buttonsHtml = `
+      <div class="mt-6 flex items-center justify-between border-t border-ink-100 pt-5">
+        <button id="wizard-back" class="text-sm text-ink-500 hover:text-ink-900 ${step === 0 ? 'invisible' : ''}">← Back</button>
+        <div class="flex gap-2">
+          <button id="wizard-skip" class="text-sm text-ink-500 hover:text-ink-900 ${step >= 2 ? '' : 'hidden'}">Skip</button>
+          <button id="wizard-next" class="btn-primary !py-2 !px-5 text-sm" ${isReady ? '' : 'disabled'}>${step === 3 ? 'Get my recommendations' : 'Next →'}</button>
+        </div>
+      </div>
+    `;
+    const content = root.querySelector('.modal-content > div:last-child');
+    if (content && !content.querySelector('#wizard-back')) content.insertAdjacentHTML('beforeend', buttonsHtml);
+
+    document.getElementById('wizard-back')?.addEventListener('click', () => {
+      state.wizardStep = Math.max(0, step - 1);
+      renderWizardModal();
+    });
+    document.getElementById('wizard-skip')?.addEventListener('click', () => {
+      if (step < 3) { state.wizardStep = step + 1; renderWizardModal(); }
+      else submitWizard();
+    });
+    document.getElementById('wizard-next')?.addEventListener('click', () => {
+      if (step === 3) {
+        state.wizardAnswers.notes = document.getElementById('wizard-notes')?.value || '';
+        submitWizard();
+      } else {
+        state.wizardStep = step + 1;
+        renderWizardModal();
+      }
+    });
+  }
+}
+
+function submitWizard() {
+  state.wizardStep = 4;
+  renderWizardModal();
+  setTimeout(() => {
+    const result = wizardRecommend(state.wizardAnswers);
+    closeModal();
+    // Push the answers as a user message and the recs as Volt's reply
+    const summaryParts = [
+      `Researching ${categoryName(state.wizardAnswers.category)}`,
+      state.wizardAnswers.budgetMax ? `under ₹${state.wizardAnswers.budgetMax.toLocaleString('en-IN')}` : null,
+      state.wizardAnswers.priorities?.length ? `prioritising ${state.wizardAnswers.priorities.join(', ')}` : null,
+    ].filter(Boolean);
+    state.voltMessages.push({ role: 'user', content: summaryParts.join(', ') + '.' });
+    state.voltMessages.push({ role: 'assistant', content: result.intro, recs: result.recs, followUp: result.followUp });
+    if ((window.location.hash || '#/') !== '#/') navigate('#/');
+    else { document.getElementById('volt-conversation')?.classList.remove('hidden'); renderVoltConversation(); }
+  }, 1400);
+}
+
+/* =====================================================================
+ * CATEGORY LISTING
+ * ===================================================================== */
+
+const PRICE_RANGES = {
+  phones:           [['Under ₹15k',0,15000],['₹15k - 25k',15000,25000],['₹25k - 40k',25000,40000],['₹40k - 60k',40000,60000],['Above ₹60k',60000,1000000]],
+  tvs:              [['Under ₹30k',0,30000],['₹30k - 50k',30000,50000],['₹50k - 80k',50000,80000],['Above ₹80k',80000,1000000]],
+  'washing-machines':[['Under ₹15k',0,15000],['₹15k - 25k',15000,25000],['Above ₹25k',25000,1000000]],
+  refrigerators:    [['Under ₹20k',0,20000],['₹20k - 30k',20000,30000],['Above ₹30k',30000,1000000]],
+  acs:              [['Under ₹30k',0,30000],['₹30k - 45k',30000,45000],['Above ₹45k',45000,1000000]],
+};
+
+let currentCategory = 'phones';
+
+function renderCategoryPage(slug) {
+  currentCategory = slug;
+  state.filters = { brand:null, priceMin:null, priceMax:null, search:'', exclude:[] };
+  const cat = CATEGORIES.find(c => c.slug === slug);
+  if (!cat) return `<div class="container-tight py-20 text-ink-500">Category not found.</div>`;
+  return `
+    <section class="container-tight py-12">
+      <header class="mb-10">
+        <h1 class="font-display text-4xl font-semibold tracking-tight md:text-5xl">${escapeHtml(cat.name)}</h1>
+        <p class="mt-2 text-ink-500">Researched ${cat.name.toLowerCase()}, prices and stock across key retailers.</p>
+      </header>
+      <div class="grid gap-10 lg:grid-cols-[260px_1fr]">
+        <aside id="filters-pane" class="lg:sticky lg:top-20 lg:self-start"></aside>
+        <div id="products-grid"></div>
+      </div>
+    </section>
+  `;
+}
+
+function renderFilters() {
+  const pane = document.getElementById('filters-pane');
+  if (!pane) return;
+  const brands = BRANDS_BY_CATEGORY[currentCategory] || [];
+  const ranges = PRICE_RANGES[currentCategory] || [];
+  const excludeOpts = EXCLUDE_FILTERS[currentCategory] || [];
+  const excludeActive = state.filters.exclude || [];
+  pane.innerHTML = `
+    <input type="search" id="filter-search" placeholder="Search..." value="${escapeHtml(state.filters.search)}"
+      class="mb-6 w-full rounded-full border border-ink-200 bg-white px-5 py-2.5 text-sm placeholder:text-ink-400 focus:border-ink-400 focus:outline-none" />
+    <div class="mb-8">
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-500">Price</h3>
+      <div class="flex flex-col gap-1">
+        ${ranges.map(([label, min, max]) => `
+          <button data-price='${JSON.stringify({min,max})}' class="filter-price text-left rounded-lg px-3 py-2 text-sm transition ${state.filters.priceMin === min && state.filters.priceMax === max ? 'bg-ink-900 text-white' : 'text-ink-700 hover:bg-ink-50'}">${label}</button>
+        `).join('')}
+      </div>
+    </div>
+    <div class="mb-8">
+      <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-500">Brand</h3>
+      <div class="flex flex-wrap gap-1.5">
+        ${brands.map(b => `
+          <button data-brand="${escapeHtml(b)}" class="filter-brand rounded-full border px-3 py-1.5 text-xs font-medium transition ${state.filters.brand === b ? 'border-ink-900 bg-ink-900 text-white' : 'border-ink-200 bg-white text-ink-700 hover:border-ink-400'}">${escapeHtml(b)}</button>
+        `).join('')}
+      </div>
+    </div>
+    ${excludeOpts.length ? `
+    <div class="mb-8">
+      <h3 class="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-rose-600">
+        <span>Exclude</span>
+        <span title="Hide products with these attributes" class="text-rose-400">ⓘ</span>
+      </h3>
+      <p class="mb-3 text-[11px] text-ink-400">Hide products with these traits.</p>
+      <div class="flex flex-col gap-1">
+        ${excludeOpts.map(opt => `
+          <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition hover:bg-rose-50">
+            <input type="checkbox" data-exclude="${opt.id}" ${excludeActive.includes(opt.id) ? 'checked' : ''}
+              class="filter-exclude h-4 w-4 rounded border-ink-300 text-rose-500 focus:ring-rose-500" />
+            <span class="flex-1 ${excludeActive.includes(opt.id) ? 'text-rose-700 font-medium line-through' : 'text-ink-700'}">${escapeHtml(opt.label)}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>` : ''}
+    ${(state.filters.brand || state.filters.priceMin !== null || state.filters.search || excludeActive.length) ? `
+      <button id="clear-filters" class="mt-2 text-sm text-ink-500 underline hover:text-ink-900">Clear all filters</button>
+    ` : ''}
+  `;
+  attachFilterEvents();
+}
+
+function attachFilterEvents() {
+  document.getElementById('filter-search')?.addEventListener('input', (e) => {
+    state.filters.search = e.target.value;
+    renderProductGrid();
+  });
+  document.querySelectorAll('.filter-brand').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const b = btn.dataset.brand;
+      state.filters.brand = state.filters.brand === b ? null : b;
+      renderFilters(); renderProductGrid();
+    });
+  });
+  document.querySelectorAll('.filter-price').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const { min, max } = JSON.parse(btn.dataset.price);
+      if (state.filters.priceMin === min && state.filters.priceMax === max) {
+        state.filters.priceMin = null; state.filters.priceMax = null;
+      } else {
+        state.filters.priceMin = min; state.filters.priceMax = max;
+      }
+      renderFilters(); renderProductGrid();
+    });
+  });
+  document.querySelectorAll('.filter-exclude').forEach(cb => {
+    cb.addEventListener('change', () => {
+      const id = cb.dataset.exclude;
+      const arr = state.filters.exclude || (state.filters.exclude = []);
+      const idx = arr.indexOf(id);
+      if (cb.checked && idx < 0) arr.push(id);
+      else if (!cb.checked && idx >= 0) arr.splice(idx, 1);
+      renderFilters(); renderProductGrid();
+    });
+  });
+  document.getElementById('clear-filters')?.addEventListener('click', () => {
+    state.filters = { brand:null, priceMin:null, priceMax:null, search:'', exclude:[] };
+    renderFilters(); renderProductGrid();
+  });
+}
+
+function filteredProducts() {
+  const excludeRules = (EXCLUDE_FILTERS[currentCategory] || [])
+    .filter(o => (state.filters.exclude || []).includes(o.id));
+  return PRODUCTS.filter(p => p.category === currentCategory).filter(p => {
+    if (state.filters.brand && p.brand !== state.filters.brand) return false;
+    if (state.filters.search && !p.name.toLowerCase().includes(state.filters.search.toLowerCase())) return false;
+    if (!p.lowest) return false;
+    if (state.filters.priceMin !== null && p.lowest.price < state.filters.priceMin) return false;
+    if (state.filters.priceMax !== null && p.lowest.price > state.filters.priceMax) return false;
+    if (excludeRules.some(r => r.match(p))) return false;
+    return true;
+  });
+}
+
+function renderProductGrid() {
+  const grid = document.getElementById('products-grid');
+  if (!grid) return;
+  const products = filteredProducts();
+  if (products.length === 0) {
+    grid.innerHTML = `<div class="rounded-xl border border-ink-100 bg-ink-50 p-10 text-center text-ink-500">No products match your filters.</div>`;
+    return;
+  }
+  grid.innerHTML = `
+    <div class="mb-4 text-sm text-ink-500">${products.length} products</div>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      ${products.map(p => {
+        const inCompare = state.compareList.includes(p.slug);
+        return `<div class="card group overflow-hidden p-5 transition hover:-translate-y-0.5 hover:shadow-soft">
+          <a data-link href="#/product/${p.slug}" class="block">
+            <div class="mb-4 grid aspect-square place-items-center overflow-hidden rounded-xl bg-ink-50">
+              <img src="${p.image}" alt="${escapeHtml(p.name)}" loading="lazy" class="h-full w-full object-contain p-4 transition group-hover:scale-[1.03]" />
+            </div>
+            <div class="text-xs uppercase tracking-wider text-ink-500">${escapeHtml(p.brand)}</div>
+            <h3 class="mt-1 line-clamp-2 min-h-[44px] text-sm font-semibold leading-snug">${escapeHtml(p.name)}</h3>
+            <div class="mt-3 flex items-baseline justify-between">
+              <div>
+                <div class="text-base font-semibold">${formatINR(p.lowest?.price)}</div>
+                <div class="text-[11px] text-ink-500">on ${PLATFORMS[p.lowest.platform].label}</div>
+              </div>
+              <div class="flex items-center gap-1 rounded-full bg-ink-50 px-2 py-1 text-xs font-medium text-ink-700">⭐ ${p.avgRating.toFixed(1)}</div>
+            </div>
+          </a>
+          <button class="compare-toggle mt-3 w-full rounded-full border px-3 py-1.5 text-xs font-medium transition ${inCompare ? 'border-volt-500 bg-volt-50 text-volt-700' : 'border-ink-200 text-ink-700 hover:border-ink-400'}" data-slug="${p.slug}">
+            ${inCompare ? '✓ In compare' : '+ Add to compare'}
+          </button>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  grid.querySelectorAll('[data-link]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const href = el.getAttribute('href');
+      if (href?.startsWith('#/')) { e.preventDefault(); navigate(href); window.scrollTo(0,0); }
+    });
+  });
+  grid.querySelectorAll('.compare-toggle').forEach(b => {
+    b.addEventListener('click', (e) => { e.stopPropagation(); toggleCompare(b.dataset.slug); });
+  });
+}
+
+/* =====================================================================
+ * PRODUCT DETAIL
+ * ===================================================================== */
+
+function renderProductDetail(slug) {
+  const p = PRODUCTS.find(x => x.slug === slug);
+  if (!p) return `<div class="container-tight py-20 text-ink-500">Product not found. <a data-link href="#/" class="underline">Home</a>.</div>`;
+
+  const sortedListings = [...p.listings].sort((a, b) => {
+    if (!a.inStock && b.inStock) return 1;
+    if (a.inStock && !b.inStock) return -1;
+    return (a.price ?? Infinity) - (b.price ?? Infinity);
+  });
+
+  const userReviews = getProductReviews(slug);
+  const userAvg = avgUserRating(slug);
+  const inCompare = state.compareList.includes(slug);
+
+  return `
+    <section class="container-tight py-10">
+      <div class="mb-8 flex items-center justify-between">
+        <a data-link href="#/category/${p.category}" class="inline-flex items-center gap-1 text-sm text-ink-500 hover:text-ink-900">‹ All ${categoryName(p.category)}</a>
+        <button id="share-product-btn" class="inline-flex items-center gap-1.5 rounded-full border border-ink-200 px-4 py-1.5 text-xs font-medium text-ink-700 transition hover:border-ink-900 hover:text-ink-900">
+          ${categoryIcon('share', 'h-3.5 w-3.5')} Share
+        </button>
+      </div>
+
+      <!-- Hero -->
+      <div class="grid gap-12 lg:grid-cols-2">
+        <div class="grid aspect-square place-items-center overflow-hidden rounded-3xl bg-ink-50">
+          <img src="${p.image}" alt="${escapeHtml(p.name)}" class="h-full w-full object-contain p-10" />
+        </div>
+        <div class="flex flex-col">
+          <div class="text-sm uppercase tracking-wider text-ink-500">${escapeHtml(p.brand)}</div>
+          <h1 class="mt-2 font-display text-3xl font-semibold tracking-tight md:text-4xl">${escapeHtml(p.name)}</h1>
+
+          <!-- Quick facts strip: SKU, launch date, ratings -->
+          <div class="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-500">
+            <span class="flex items-center gap-1.5">
+              <span class="text-amber-500">⭐</span>
+              <span class="font-medium text-ink-900">${p.avgRating.toFixed(1)}</span>
+              <span>· ${p.totalReviews.toLocaleString('en-IN')} reviews${userReviews.length ? ` + ${userReviews.length} KayaqAI` : ''}</span>
+            </span>
+            <span class="text-ink-300">|</span>
+            <span title="Launch date">Launched ${formatLaunchDate(p.launchDate)}</span>
+            <span class="text-ink-300">|</span>
+            <span title="KayaqAI unique product identifier" class="font-mono text-[12px] text-ink-600">${escapeHtml(p.sku)}</span>
+          </div>
+
+          <div class="mt-8 rounded-2xl border border-ink-100 p-6">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-xs uppercase tracking-wider text-ink-500">Lowest right now</div>
+                <div class="mt-1 flex items-baseline gap-2">
+                  <span class="text-4xl font-semibold tracking-tight">${formatINR(p.lowest?.price)}</span>
+                  <span class="text-sm text-ink-500">on ${PLATFORMS[p.lowest.platform].label}</span>
+                </div>
+              </div>
+              <button id="alert-btn" title="Set price or availability alert"
+                class="grid h-10 w-10 place-items-center rounded-full border border-ink-200 text-ink-600 hover:border-ink-400 hover:text-ink-900">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </button>
+            </div>
+            <div class="mt-5 flex flex-wrap gap-3">
+              <a href="${p.lowest.url}" class="btn-primary flex-1">Buy on ${PLATFORMS[p.lowest.platform].label}</a>
+              <button id="compare-detail-toggle" class="btn-secondary !flex-none">${inCompare ? '✓ In compare' : '+ Compare'}</button>
+            </div>
+            ${alertSummaryFor(p.slug)}
+          </div>
+          <div class="mt-6 rounded-2xl border border-volt-100 bg-volt-50 p-5">
+            <div class="mb-1 flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-volt-600">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5"><path d="M12 2L9.5 9.5 2 12l7.5 2.5L12 22l2.5-7.5L22 12l-7.5-2.5z"/></svg> Volt's verdict
+            </div>
+            <p class="text-sm text-ink-800">${escapeHtml(p.verdict)}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Insights row -->
+      ${renderAiInsights(p)}
+
+      <!-- Pros & cons -->
+      ${(p.pros?.length || p.cons?.length) ? `
+        <section class="mt-16 grid gap-6 md:grid-cols-2">
+          <div class="card p-6">
+            <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <span class="grid h-7 w-7 place-items-center rounded-full bg-emerald-100 text-emerald-700 text-sm">✓</span>Pros
+            </h2>
+            <ul class="space-y-2 text-sm text-ink-700">
+              ${(p.pros||[]).map(x => `<li class="flex gap-2"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-500"></span>${escapeHtml(x)}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="card p-6">
+            <h2 class="mb-4 flex items-center gap-2 text-lg font-semibold">
+              <span class="grid h-7 w-7 place-items-center rounded-full bg-rose-100 text-rose-700 text-sm">×</span>Cons
+            </h2>
+            <ul class="space-y-2 text-sm text-ink-700">
+              ${(p.cons||[]).map(x => `<li class="flex gap-2"><span class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-500"></span>${escapeHtml(x)}</li>`).join('')}
+            </ul>
+          </div>
+        </section>
+      ` : ''}
+
+      <!-- Compare prices -->
+      <section class="mt-16">
+        <h2 class="mb-5 text-xl font-semibold">Compare prices</h2>
+        <div class="card overflow-hidden">
+          <table class="w-full text-sm">
+            <thead class="border-b border-ink-100 bg-ink-50/50 text-left text-xs uppercase tracking-wider text-ink-500">
+              <tr><th class="px-5 py-3 font-medium">Platform</th><th class="px-5 py-3 font-medium">Price</th><th class="px-5 py-3 font-medium">Status</th><th class="px-5 py-3 font-medium">Rating</th><th class="px-5 py-3"></th></tr>
+            </thead>
+            <tbody>
+              ${sortedListings.map(l => {
+                const isLowest = l.inStock && l.price === p.lowest?.price;
+                return `<tr class="border-b border-ink-100 last:border-0">
+                  <td class="px-5 py-4 font-medium">${PLATFORMS[l.platform].label}</td>
+                  <td class="px-5 py-4">
+                    <div class="flex items-baseline gap-2">
+                      <span class="text-base font-semibold">${formatINR(l.price)}</span>
+                      ${isLowest ? '<span class="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-700">Lowest</span>' : ''}
+                      ${l.discount ? `<span class="text-xs text-emerald-600">${l.discount}% off</span>` : ''}
+                    </div>
+                    ${l.mrp && l.price && l.mrp !== l.price ? `<div class="text-xs text-ink-400 line-through">${formatINR(l.mrp)}</div>` : ''}
+                  </td>
+                  <td class="px-5 py-4">${l.inStock ? '<span class="inline-flex items-center gap-1 text-emerald-700">✓ In stock</span>' : '<span class="inline-flex items-center gap-1 text-ink-400">✗ Unavailable</span>'}</td>
+                  <td class="px-5 py-4 text-sm text-ink-700">⭐ ${l.rating.toFixed(1)} <span class="text-ink-400">(${(l.reviews/1000).toFixed(1)}k)</span></td>
+                  <td class="px-5 py-4 text-right"><a href="${l.url}" class="text-xs font-medium text-volt-600 hover:underline">View ↗</a></td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- USER REVIEWS. Aggregates from retailers + crowdsourced from KayaqAI users -->
+      <section class="mt-16">
+        <div class="mb-5 flex items-center justify-between">
+          <h2 class="text-xl font-semibold">User reviews</h2>
+          <button id="write-review-btn" class="btn-primary !py-2 !px-4 text-xs">Write a review</button>
+        </div>
+        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-500">Across retailer platforms</h3>
+        <div class="grid gap-4 mb-10 sm:grid-cols-2 lg:grid-cols-5">
+          ${p.listings.filter(l => l.reviews).map(l => `
+            <div class="card p-5">
+              <div class="text-xs uppercase tracking-wider text-ink-500">${PLATFORMS[l.platform].label}</div>
+              <div class="mt-2 flex items-baseline gap-1">
+                <span class="text-2xl font-semibold">${l.rating.toFixed(1)}</span>
+                <span class="text-amber-400">⭐</span>
+              </div>
+              <div class="text-xs text-ink-500">${l.reviews.toLocaleString('en-IN')} reviews</div>
+            </div>
+          `).join('')}
+        </div>
+        <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-500">From KayaqAI users ${userAvg ? `· ⭐ ${userAvg.toFixed(1)} avg` : ''}</h3>
+        ${userReviews.length === 0 ? `
+          <div class="card p-8 text-center text-sm text-ink-500">
+            No KayaqAI reviews yet. Be the first to share your experience.
+          </div>
+        ` : `
+          <div class="grid gap-4 md:grid-cols-2">
+            ${userReviews.slice().reverse().map(r => `
+              <div class="card p-5">
+                <div class="mb-2 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="grid h-8 w-8 place-items-center rounded-full bg-ink-900 text-xs text-white">${escapeHtml(r.user[0]?.toUpperCase() || 'U')}</div>
+                    <div>
+                      <div class="text-sm font-medium">${escapeHtml(r.user)}</div>
+                      <div class="text-[11px] text-ink-400">${new Date(r.date).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</div>
+                    </div>
+                  </div>
+                  <div class="text-amber-500">${'⭐'.repeat(r.rating)}<span class="text-ink-200">${'⭐'.repeat(5 - r.rating)}</span></div>
+                </div>
+                ${r.title ? `<div class="mt-2 text-sm font-semibold">${escapeHtml(r.title)}</div>` : ''}
+                <p class="mt-1 text-sm text-ink-700">${escapeHtml(r.body)}</p>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </section>
+
+      <!-- Price history -->
+      <section class="mt-16">
+        <div class="mb-1 flex flex-wrap items-baseline justify-between gap-2">
+          <h2 class="text-xl font-semibold">Price history</h2>
+          <span class="text-xs text-ink-400">Tracking SKU <span class="font-mono text-ink-600">${escapeHtml(p.sku)}</span> · launched ${formatLaunchDate(p.launchDate)}</span>
+        </div>
+        <p class="mb-5 text-sm text-ink-500">Last 30 days across all platforms. Variants of this product line have separate SKUs and separate price trends.</p>
+        <div class="card p-6"><div style="height: 360px; position: relative;"><canvas id="price-chart"></canvas></div></div>
+      </section>
+
+      <!-- Specs -->
+      <section class="mt-16">
+        <div class="card p-7">
+          <h2 class="mb-6 text-xl font-semibold">Specifications</h2>
+          <div class="grid gap-x-12 gap-y-8 md:grid-cols-2">
+            ${specSections(p).map(([title, rows]) => `
+              <div>
+                <h3 class="mb-3 text-xs font-semibold uppercase tracking-wider text-ink-500">${title}</h3>
+                <dl class="space-y-2">
+                  ${rows.map(([k, v]) => `<div class="flex justify-between gap-4 border-b border-ink-100 py-1.5 text-sm last:border-0">
+                    <dt class="text-ink-500">${k}</dt><dd class="text-right font-medium text-ink-900">${escapeHtml(String(v))}</dd>
+                  </div>`).join('')}
+                </dl>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+function renderAiInsights(p) {
+  const deal = computeDealScore(p);
+  const summary = computeAiReviewSummary(p);
+  const tco = computeTCO(p);
+
+  const tierBg = { emerald:'bg-emerald-50 border-emerald-200', volt:'bg-volt-50 border-volt-200', amber:'bg-amber-50 border-amber-200', rose:'bg-rose-50 border-rose-200' };
+  const tierText = { emerald:'text-emerald-700', volt:'text-volt-700', amber:'text-amber-700', rose:'text-rose-700' };
+
+  const dealCard = deal ? `
+    <div class="card p-6 ${tierBg[deal.tier]}">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="text-[11px] font-semibold uppercase tracking-wider ${tierText[deal.tier]} flex items-center gap-1.5">
+            ${categoryIcon('sparkle','h-3.5 w-3.5')} AI deal score
+          </div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <span class="text-4xl font-semibold tracking-tight">${deal.score.toFixed(1)}</span>
+            <span class="text-sm text-ink-500">/ 10</span>
+          </div>
+        </div>
+        <span class="rounded-full bg-white/60 px-2 py-0.5 text-[11px] font-semibold uppercase ${tierText[deal.tier]}">${deal.tier === 'emerald' ? 'Buy now' : deal.tier === 'volt' ? 'Decent' : deal.tier === 'amber' ? 'Wait' : 'Hold'}</span>
+      </div>
+      <p class="mt-3 text-sm text-ink-700">${escapeHtml(deal.verdict)}</p>
+      <div class="mt-4 flex items-center justify-between text-[11px] text-ink-500">
+        <span>30-day low <span class="font-semibold text-ink-800">${formatINR(deal.lo)}</span></span>
+        <span>now <span class="font-semibold text-ink-900">${formatINR(deal.current)}</span></span>
+        <span>30-day high <span class="font-semibold text-ink-800">${formatINR(deal.hi)}</span></span>
+      </div>
+    </div>
+  ` : '';
+
+  const summaryCard = `
+    <div class="card p-6">
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-volt-600 flex items-center gap-1.5">
+        ${categoryIcon('sparkle','h-3.5 w-3.5')} AI review summary
+      </div>
+      <p class="mt-2 text-xs text-ink-500">Synthesised from ${summary.totalReviews.toLocaleString('en-IN')} buyer reviews across retailers.</p>
+      <div class="mt-3 flex items-center gap-2">
+        <div class="h-2 flex-1 overflow-hidden rounded-full bg-ink-100">
+          <div class="h-full bg-emerald-500" style="width:${summary.sentiment}%"></div>
+        </div>
+        <span class="text-xs font-semibold text-emerald-700">${summary.sentiment}% positive</span>
+      </div>
+      <div class="mt-4 space-y-3 text-xs">
+        <div>
+          <div class="mb-1 font-semibold uppercase tracking-wider text-emerald-700 text-[10px]">What buyers love</div>
+          <ul class="space-y-1 text-ink-700">
+            ${summary.praise.map(x => `<li class="flex gap-1.5"><span class="text-emerald-500">+</span>${escapeHtml(x)}</li>`).join('')}
+          </ul>
+        </div>
+        ${summary.complaints.length ? `<div>
+          <div class="mb-1 font-semibold uppercase tracking-wider text-rose-700 text-[10px]">Common complaints</div>
+          <ul class="space-y-1 text-ink-700">
+            ${summary.complaints.map(x => `<li class="flex gap-1.5"><span class="text-rose-500">-</span>${escapeHtml(x)}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+      </div>
+    </div>
+  `;
+
+  const tcoCard = tco ? `
+    <div class="card p-6">
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-volt-600 flex items-center gap-1.5">
+        ${categoryIcon('sparkle','h-3.5 w-3.5')} Total cost over 5 years
+      </div>
+      <p class="mt-2 text-xs text-ink-500">Purchase + electricity at ₹${tco.rate}/unit. Assumes ${escapeHtml(tco.usage)}.</p>
+      <div class="mt-3 flex items-baseline gap-1">
+        <span class="text-3xl font-semibold tracking-tight">${formatINR(tco.fiveYearTCO)}</span>
+      </div>
+      <div class="mt-4 space-y-1 text-xs">
+        <div class="flex justify-between"><span class="text-ink-500">Purchase price</span><span class="font-medium">${formatINR(tco.purchase)}</span></div>
+        <div class="flex justify-between"><span class="text-ink-500">Annual electricity</span><span class="font-medium">${formatINR(tco.annualCost)}<span class="text-ink-400"> · ${tco.annualKwh} kWh</span></span></div>
+        <div class="flex justify-between"><span class="text-ink-500">5-year electricity</span><span class="font-medium">${formatINR(tco.annualCost * 5)}</span></div>
+      </div>
+    </div>
+  ` : '';
+
+  const phonePersonaCard = (p.category === 'phones' && !tco) ? `
+    <div class="card p-6">
+      <div class="text-[11px] font-semibold uppercase tracking-wider text-volt-600 flex items-center gap-1.5">
+        ${categoryIcon('sparkle','h-3.5 w-3.5')} Best for
+      </div>
+      <p class="mt-2 text-xs text-ink-500">Based on hardware, software support, and aggregate reviews.</p>
+      <div class="mt-4 flex flex-wrap gap-1.5">
+        ${(p.tags || []).slice(0, 6).map(t => `<span class="rounded-full bg-volt-50 px-2.5 py-1 text-[11px] font-medium text-volt-700">${escapeHtml(t.replace(/-/g, ' '))}</span>`).join('')}
+      </div>
+      ${p.specs.os ? `<div class="mt-4 rounded-lg bg-ink-50 p-3 text-xs text-ink-700"><span class="font-semibold">Software:</span> ${escapeHtml(p.specs.os)}</div>` : ''}
+    </div>
+  ` : '';
+
+  const cards = [dealCard, summaryCard, tcoCard || phonePersonaCard].filter(Boolean);
+  return `
+    <section class="mt-12">
+      <div class="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wider text-volt-600">
+        ${categoryIcon('sparkle','h-3.5 w-3.5')} AI insights
+      </div>
+      <div class="grid gap-5 ${cards.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}">
+        ${cards.join('')}
+      </div>
+    </section>
+  `;
+}
+
+function specSections(p) {
+  const s = p.specs || {};
+  const fmt = (k, v) => v == null || v === '' ? null : [k, v];
+  if (p.category === 'phones') {
+    return [
+      ['Display', [fmt('Size', s.display), fmt('Resolution', s.resolution), fmt('Refresh rate', s.refreshRate ? s.refreshRate + ' Hz' : null)].filter(Boolean)],
+      ['Performance', [fmt('Chipset', s.chipset), fmt('CPU', s.cpu), fmt('GPU', s.gpu), fmt('RAM', s.ram ? s.ram + ' GB' : null), fmt('Storage', s.storage ? s.storage + ' GB' : null), fmt('Expandable', s.expandable == null ? null : (s.expandable ? 'Yes' : 'No'))].filter(Boolean)],
+      ['Camera', [fmt('Rear', s.mainCamera), fmt('Front', s.frontCamera)].filter(Boolean)],
+      ['Battery', [fmt('Capacity', s.battery ? s.battery + ' mAh' : null), fmt('Fast charging', s.charging ? s.charging + ' W' : null), fmt('Wireless', s.wireless == null ? null : (s.wireless ? 'Yes' : 'No'))].filter(Boolean)],
+      ['Other', [fmt('OS', s.os), fmt('Weight', s.weight ? s.weight + ' g' : null), fmt('5G', s.fiveG == null ? null : (s.fiveG ? 'Yes' : 'No')), fmt('IP rating', s.ip)].filter(Boolean)],
+    ];
+  } else if (p.category === 'tvs') {
+    return [
+      ['Display', [fmt('Size', s.size), fmt('Resolution', s.resolution), fmt('Panel', s.panel), fmt('Refresh rate', s.refreshRate ? s.refreshRate + ' Hz' : null), fmt('HDR', s.hdr)].filter(Boolean)],
+      ['Smart features', [fmt('OS', s.smartOs), fmt('Ports', s.ports)].filter(Boolean)],
+      ['Audio & power', [fmt('Sound', s.sound), fmt('Energy rating', s.energy)].filter(Boolean)],
+      ['Other', [fmt('Warranty', s.warranty)].filter(Boolean)],
+    ];
+  } else if (p.category === 'washing-machines') {
+    return [
+      ['Capacity & type', [fmt('Capacity', s.capacity), fmt('Type', s.type), fmt('Spin speed', s.spinSpeed)].filter(Boolean)],
+      ['Tech', [fmt('Motor', s.motor), fmt('Energy rating', s.energy), fmt('Programs', s.programs), fmt('WiFi', s.wifi)].filter(Boolean)],
+      ['Features', [fmt('Smart features', s.features)].filter(Boolean)],
+      ['Warranty', [fmt('Warranty', s.warranty)].filter(Boolean)],
+    ];
+  } else if (p.category === 'refrigerators') {
+    return [
+      ['Capacity & type', [fmt('Capacity', s.capacity), fmt('Type', s.type), fmt('Defrost', s.defrost)].filter(Boolean)],
+      ['Tech', [fmt('Compressor', s.compressor), fmt('Energy rating', s.stars)].filter(Boolean)],
+      ['Features', [fmt('Smart features', s.features)].filter(Boolean)],
+      ['Warranty', [fmt('Warranty', s.warranty)].filter(Boolean)],
+    ];
+  } else if (p.category === 'acs') {
+    return [
+      ['Capacity & type', [fmt('Capacity', s.capacity), fmt('Type', s.type), fmt('Tech', s.tech), fmt('Coil', s.coil)].filter(Boolean)],
+      ['Performance', [fmt('Energy rating', s.stars), fmt('ISEER', s.iseer), fmt('Noise', s.noise)].filter(Boolean)],
+      ['Features', [fmt('Smart features', s.features)].filter(Boolean)],
+      ['Warranty', [fmt('Warranty', s.warranty)].filter(Boolean)],
+    ];
+  }
+  return [];
+}
+
+function attachProductDetailEvents(slug) {
+  document.getElementById('write-review-btn')?.addEventListener('click', () => {
+    if (!state.currentUser) {
+      openLoginModal('You need to sign in to write a review.', () => openReviewModal(slug));
+    } else {
+      openReviewModal(slug);
+    }
+  });
+  document.getElementById('compare-detail-toggle')?.addEventListener('click', () => {
+    toggleCompare(slug);
+  });
+  document.getElementById('alert-btn')?.addEventListener('click', () => {
+    if (!state.currentUser) {
+      openLoginModal('Sign in to track price drops and back-in-stock alerts.', () => openAlertModal(slug));
+    } else {
+      openAlertModal(slug);
+    }
+  });
+  document.getElementById('share-product-btn')?.addEventListener('click', () => {
+    const product = PRODUCTS.find(p => p.slug === slug);
+    openShareModal('product', product);
+  });
+  document.getElementById('manage-alerts-btn')?.addEventListener('click', () => openAlertModal(slug));
+}
+
+/* =====================================================================
+ * ALERTS — price threshold + back-in-stock notifications
+ * ===================================================================== */
+
+function alertsForUserAndProduct(slug) {
+  if (!state.currentUser) return [];
+  return state.alerts.filter(a => a.userEmail === state.currentUser.email && a.slug === slug);
+}
+
+function alertSummaryFor(slug) {
+  const my = alertsForUserAndProduct(slug);
+  if (!my.length) return '';
+  return `
+    <div class="mt-4 rounded-xl border border-volt-200 bg-volt-50 p-3 text-xs text-volt-700">
+      <div class="flex items-center justify-between gap-3">
+        <span>
+          ${my.map(a => a.kind === 'price'
+            ? `🔔 Notify when price drops below ${formatINR(a.threshold)}`
+            : `🔔 Notify when back in stock on ${PLATFORMS[a.platform]?.label || 'any retailer'}`
+          ).join(' · ')}
+        </span>
+        <button id="manage-alerts-btn" class="text-volt-600 underline hover:text-volt-700">Manage</button>
+      </div>
+    </div>
+  `;
+}
+
+function openAlertModal(slug) {
+  const product = PRODUCTS.find(p => p.slug === slug);
+  if (!product) return;
+  const lowest = product.lowest?.price ?? 0;
+  const suggested = Math.round(lowest * 0.92 / 100) * 100;
+  const my = alertsForUserAndProduct(slug);
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-close"></div>
+    <div class="modal-content card p-7">
+      <div class="mb-5">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-volt-600">Set an alert</div>
+        <div class="text-base font-semibold">${escapeHtml(product.name)}</div>
+        <p class="mt-1 text-xs text-ink-500">SKU ${escapeHtml(product.sku)} · current lowest ${formatINR(lowest)}</p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="card p-4">
+          <div class="mb-2 text-sm font-semibold">📉 Notify me on price drop</div>
+          <p class="mb-3 text-xs text-ink-500">We will email you when any retailer drops below your threshold.</p>
+          <form id="alert-price-form" class="flex items-center gap-2">
+            <span class="text-sm">₹</span>
+            <input id="alert-threshold" type="number" min="0" step="100" value="${suggested}"
+              class="w-full rounded-xl border border-ink-200 px-4 py-2 text-sm focus:border-ink-400 focus:outline-none" />
+            <button type="submit" class="btn-primary !py-2 !px-4 text-sm">Set</button>
+          </form>
+        </div>
+
+        <div class="card p-4">
+          <div class="mb-2 text-sm font-semibold">📦 Notify me when back in stock</div>
+          <p class="mb-3 text-xs text-ink-500">Pick a retailer to watch (or leave blank for any).</p>
+          <form id="alert-stock-form" class="flex items-center gap-2">
+            <select id="alert-platform" class="w-full rounded-xl border border-ink-200 px-4 py-2 text-sm focus:border-ink-400 focus:outline-none">
+              <option value="">Any retailer</option>
+              ${Object.entries(PLATFORMS).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join('')}
+            </select>
+            <button type="submit" class="btn-secondary !py-2 !px-4 text-sm">Set</button>
+          </form>
+        </div>
+
+        ${my.length ? `
+          <div>
+            <div class="mb-2 text-xs font-semibold uppercase tracking-wider text-ink-500">Your alerts on this product</div>
+            <ul class="space-y-1 text-sm">
+              ${my.map(a => `
+                <li class="flex items-center justify-between rounded-lg bg-ink-50 px-3 py-2">
+                  <span>${a.kind === 'price'
+                    ? `🔔 Below ${formatINR(a.threshold)}`
+                    : `🔔 Back in stock on ${a.platform ? PLATFORMS[a.platform].label : 'any retailer'}`}</span>
+                  <button class="alert-remove text-xs text-rose-600 hover:underline" data-id="${a.id}">Remove</button>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('alert-price-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const threshold = parseInt(document.getElementById('alert-threshold').value);
+    if (!threshold) return;
+    state.alerts.push({
+      id: 'a' + Date.now() + Math.random().toString(36).slice(2,7),
+      userEmail: state.currentUser.email, slug, kind: 'price', threshold,
+      created: new Date().toISOString(),
+    });
+    persist.alerts(); closeModal(); render();
+  });
+  document.getElementById('alert-stock-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const platform = document.getElementById('alert-platform').value || null;
+    state.alerts.push({
+      id: 'a' + Date.now() + Math.random().toString(36).slice(2,7),
+      userEmail: state.currentUser.email, slug, kind: 'stock', platform,
+      created: new Date().toISOString(),
+    });
+    persist.alerts(); closeModal(); render();
+  });
+  root.querySelectorAll('.alert-remove').forEach(b => {
+    b.addEventListener('click', () => {
+      const id = b.dataset.id;
+      state.alerts = state.alerts.filter(a => a.id !== id);
+      persist.alerts();
+      openAlertModal(slug); // re-render the modal in place
+    });
+  });
+}
+
+function drawPriceChart(slug) {
+  const p = PRODUCTS.find(x => x.slug === slug);
+  const ctx = document.getElementById('price-chart');
+  if (!ctx || !p) return;
+  const labels = p.priceHistory.map(h => h.date.slice(5));
+  const datasets = Object.keys(PLATFORMS).map(plat => ({
+    label: PLATFORMS[plat].label,
+    data: p.priceHistory.map(h => h[plat]),
+    borderColor: PLATFORMS[plat].color,
+    backgroundColor: PLATFORMS[plat].color + '20',
+    borderWidth: 2, tension: 0.25, pointRadius: 0, pointHoverRadius: 4,
+  }));
+  new Chart(ctx, {
+    type: 'line', data: { labels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 8, boxHeight: 8, font: { size: 12 } } },
+        tooltip: { backgroundColor: 'white', titleColor: '#0d0d10', bodyColor: '#34343a',
+          borderColor: '#eeeef0', borderWidth: 1, padding: 12,
+          callbacks: { label: (c) => c.dataset.label + ': ' + formatINR(c.raw) } },
+      },
+      scales: {
+        x: { grid: { color: '#f7f7f8' }, ticks: { font: { size: 10 }, color: '#65656c' } },
+        y: { grid: { color: '#eeeef0' }, ticks: { callback: v => '₹' + (v/1000).toFixed(0) + 'k', color: '#65656c' } },
+      },
+    },
+  });
+}
+
+/* =====================================================================
+ * COMPARE PAGE
+ * ===================================================================== */
+
+function renderComparePage() {
+  const items = state.compareList.map(s => PRODUCTS.find(p => p.slug === s)).filter(Boolean);
+  if (items.length === 0) {
+    return `<section class="container-tight py-20 text-center">
+      <h1 class="font-display text-3xl font-semibold">Nothing to compare yet</h1>
+      <p class="mt-3 text-ink-500">Add 2 to 3 products to compare from any product page.</p>
+      <a data-link href="#/category/phones" class="btn-primary mt-6">Browse phones</a>
+    </section>`;
+  }
+
+  const cat = items[0].category;
+  const sectionRows = specSections(items[0]);
+
+  // Build a per-platform listing lookup so we can render Amazon / Flipkart / etc rows neatly
+  const listingByPlatform = (p) => Object.fromEntries(p.listings.map(l => [l.platform, l]));
+
+  // Helper: highlight best/worst across columns for visual ranking
+  const numericCell = (val, allVals, higherIsBetter = true) => {
+    if (val == null || isNaN(val)) return `<td class="p-5 text-sm text-ink-400">-</td>`;
+    const valid = allVals.filter(v => v != null && !isNaN(v));
+    if (!valid.length) return `<td class="p-5 text-sm text-ink-700">${val}</td>`;
+    const best = higherIsBetter ? Math.max(...valid) : Math.min(...valid);
+    const isBest = val === best;
+    return `<td class="p-5 text-sm ${isBest ? 'font-semibold text-emerald-700' : 'text-ink-700'}">${val}${isBest ? ' <span class="text-[10px] uppercase tracking-wider rounded bg-emerald-100 px-1.5 py-0.5">Best</span>' : ''}</td>`;
+  };
+
+  return `
+    <section class="container-tight py-12">
+      <div class="mb-2 flex items-start justify-between gap-4">
+        <h1 class="font-display text-3xl font-semibold tracking-tight md:text-4xl">Compare ${items.length} products</h1>
+        <button id="share-compare-btn" class="inline-flex items-center gap-1.5 rounded-full border border-ink-200 px-4 py-1.5 text-xs font-medium text-ink-700 transition hover:border-ink-900 hover:text-ink-900">
+          ${categoryIcon('share', 'h-3.5 w-3.5')} Share comparison
+        </button>
+      </div>
+      <p class="mb-8 text-ink-500">Side-by-side: specs, price, ratings on key retailers, plus pros and cons.</p>
+
+      <div class="card overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-ink-100">
+              <th class="w-48 p-5 text-left text-xs font-semibold uppercase tracking-wider text-ink-500">&nbsp;</th>
+              ${items.map(p => `
+                <th class="p-5 text-left align-top">
+                  <div class="grid aspect-square w-32 place-items-center overflow-hidden rounded-xl bg-ink-50 mb-3">
+                    <img src="${p.image}" class="h-full w-full object-contain p-3" />
+                  </div>
+                  <div class="text-xs uppercase tracking-wider text-ink-500">${escapeHtml(p.brand)}</div>
+                  <a data-link href="#/product/${p.slug}" class="text-sm font-semibold hover:underline">${escapeHtml(p.name)}</a>
+                  <div class="mt-2 font-mono text-[11px] text-ink-500">${escapeHtml(p.sku)}</div>
+                  <button data-slug="${p.slug}" class="compare-page-remove mt-2 text-xs text-rose-600 hover:underline">Remove</button>
+                </th>
+              `).join('')}
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-ink-100 bg-ink-50/40"><td colspan="${items.length+1}" class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink-700">Identity</td></tr>
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">SKU</td>
+              ${items.map(p => `<td class="p-5 font-mono text-[12px] text-ink-700">${escapeHtml(p.sku)}</td>`).join('')}
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">Launch date</td>
+              ${items.map(p => `<td class="p-5 text-sm text-ink-700">${escapeHtml(formatLaunchDate(p.launchDate))}</td>`).join('')}
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">Release year</td>
+              ${items.map(p => `<td class="p-5 text-sm text-ink-700">${p.releaseYear}</td>`).join('')}
+            </tr>
+
+            <tr class="border-b border-ink-100 bg-ink-50/40"><td colspan="${items.length+1}" class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink-700">Pricing</td></tr>
+            ${(() => {
+              const prices = items.map(p => p.lowest?.price ?? null);
+              return `<tr class="border-b border-ink-100">
+                <td class="p-5 text-xs text-ink-500">Lowest live price</td>
+                ${items.map((p, idx) => {
+                  const v = prices[idx];
+                  const validPrices = prices.filter(x => x != null);
+                  const isBest = v != null && v === Math.min(...validPrices);
+                  return `<td class="p-5 align-top">
+                    <div class="text-base font-semibold ${isBest ? 'text-emerald-700' : ''}">${formatINR(v)} ${isBest ? '<span class="text-[10px] uppercase tracking-wider rounded bg-emerald-100 px-1.5 py-0.5 align-middle">Lowest</span>' : ''}</div>
+                    <div class="text-xs text-ink-500">on ${p.lowest ? PLATFORMS[p.lowest.platform].label : '-'}</div>
+                  </td>`;
+                }).join('')}
+              </tr>`;
+            })()}
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">MRP (median)</td>
+              ${items.map(p => {
+                const mrps = p.listings.map(l => l.mrp).filter(Boolean);
+                const median = mrps.sort((a,b)=>a-b)[Math.floor(mrps.length/2)] ?? null;
+                return `<td class="p-5 text-sm text-ink-500 line-through">${formatINR(median)}</td>`;
+              }).join('')}
+            </tr>
+
+            <tr class="border-b border-ink-100 bg-ink-50/40"><td colspan="${items.length+1}" class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink-700">Per-platform price &amp; rating</td></tr>
+            ${Object.keys(PLATFORMS).flatMap(plat => {
+              const platLabel = PLATFORMS[plat].label;
+              return [
+                `<tr class="border-b border-ink-100">
+                  <td class="p-5 text-xs text-ink-500" rowspan="2">
+                    <div class="font-medium text-ink-800">${platLabel}</div>
+                  </td>
+                  ${items.map(p => {
+                    const l = listingByPlatform(p)[plat];
+                    if (!l) return `<td class="p-5 text-sm text-ink-300">-</td>`;
+                    return `<td class="p-5 align-top">
+                      <div class="text-sm font-semibold ${l.inStock ? '' : 'text-ink-400 line-through'}">${formatINR(l.price)}</div>
+                      <div class="mt-0.5 text-[11px] ${l.inStock ? 'text-emerald-700' : 'text-ink-400'}">${l.inStock ? '✓ In stock' : '✗ Unavailable'}</div>
+                    </td>`;
+                  }).join('')}
+                </tr>`,
+                `<tr class="border-b border-ink-100">
+                  ${items.map(p => {
+                    const l = listingByPlatform(p)[plat];
+                    if (!l || !l.rating) return `<td class="p-5 text-sm text-ink-300">-</td>`;
+                    return `<td class="p-5">
+                      <span class="text-sm">⭐ ${l.rating.toFixed(1)}</span>
+                      <span class="text-[11px] text-ink-400">· ${(l.reviews/1000).toFixed(1)}k reviews</span>
+                    </td>`;
+                  }).join('')}
+                </tr>`
+              ].join('');
+            }).join('')}
+
+            <tr class="border-b border-ink-100 bg-ink-50/40"><td colspan="${items.length+1}" class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink-700">Ratings &amp; reviews</td></tr>
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">Average rating</td>
+              ${items.map(p => `<td class="p-5 text-sm">⭐ ${p.avgRating.toFixed(1)}</td>`).join('')}
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">Total reviews (all platforms)</td>
+              ${items.map(p => `<td class="p-5 text-sm">${p.totalReviews.toLocaleString('en-IN')}</td>`).join('')}
+            </tr>
+            <tr class="border-b border-ink-100">
+              <td class="p-5 text-xs text-ink-500">KayaqAI user reviews</td>
+              ${items.map(p => {
+                const list = getProductReviews(p.slug);
+                const avg = avgUserRating(p.slug);
+                return `<td class="p-5 text-sm">${list.length ? `⭐ ${avg.toFixed(1)} · ${list.length}` : '<span class="text-ink-400">None yet</span>'}</td>`;
+              }).join('')}
+            </tr>
+
+            ${sectionRows.flatMap(([title, rows]) => [
+              `<tr class="border-b border-ink-100 bg-ink-50/40"><td colspan="${items.length+1}" class="px-5 py-3 text-xs font-semibold uppercase tracking-wider text-ink-700">${title}</td></tr>`,
+              ...rows.map(([k]) => {
+                const cells = items.map(p => {
+                  const sec = specSections(p).find(([t]) => t === title);
+                  const row = sec?.[1].find(([kk]) => kk === k);
+                  return `<td class="p-5 text-sm text-ink-700">${escapeHtml(String(row ? row[1] : '-'))}</td>`;
+                }).join('');
+                return `<tr class="border-b border-ink-100"><td class="p-5 text-xs text-ink-500">${k}</td>${cells}</tr>`;
+              })
+            ]).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <section class="mt-10">
+        <h2 class="mb-5 text-xl font-semibold">Pros &amp; cons at a glance</h2>
+        <div class="grid gap-5 ${items.length === 2 ? 'md:grid-cols-2' : items.length === 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}">
+          ${items.map(p => `
+            <div class="card p-6">
+              <div class="mb-4 flex items-center gap-3">
+                <div class="grid aspect-square w-12 place-items-center overflow-hidden rounded-lg bg-ink-50">
+                  <img src="${p.image}" class="h-full w-full object-contain p-1" />
+                </div>
+                <div class="min-w-0 flex-1">
+                  <div class="text-[11px] uppercase tracking-wider text-ink-500">${escapeHtml(p.brand)}</div>
+                  <a data-link href="#/product/${p.slug}" class="text-sm font-semibold hover:underline truncate block">${escapeHtml(p.name)}</a>
+                </div>
+              </div>
+              <div class="grid gap-4">
+                <div>
+                  <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700">
+                    <span class="grid h-5 w-5 place-items-center rounded-full bg-emerald-100">✓</span>Pros
+                  </div>
+                  <ul class="space-y-1.5 text-xs text-ink-700">
+                    ${(p.pros || []).map(x => `<li class="flex gap-1.5"><span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-emerald-500"></span>${escapeHtml(x)}</li>`).join('')}
+                  </ul>
+                </div>
+                <div>
+                  <div class="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-rose-700">
+                    <span class="grid h-5 w-5 place-items-center rounded-full bg-rose-100">×</span>Cons
+                  </div>
+                  <ul class="space-y-1.5 text-xs text-ink-700">
+                    ${(p.cons || []).map(x => `<li class="flex gap-1.5"><span class="mt-1 h-1 w-1 shrink-0 rounded-full bg-rose-500"></span>${escapeHtml(x)}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
+              <div class="mt-5 rounded-lg border border-volt-100 bg-volt-50 p-3 text-xs text-volt-700">
+                <span class="font-semibold uppercase tracking-wider text-[10px]">Volt's verdict ·</span> ${escapeHtml(p.verdict)}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </section>
+    </section>
+  `;
+}
+
+/* =====================================================================
+ * MODALS, AUTH, REVIEWS, SHARE
+ * ===================================================================== */
+
+function closeModal() {
+  document.getElementById('modal-root').innerHTML = '';
+}
+
+function buildShareText(kind, payload) {
+  if (kind === 'product') {
+    const p = payload;
+    return {
+      title: `${p.name} on KayaqAI`,
+      text: `Check out ${p.name} (${formatINR(p.lowest?.price)} on ${PLATFORMS[p.lowest.platform].label}) on KayaqAI. SKU ${p.sku}.`,
+      url: `https://kayaqai.com/product/${p.slug}`,
+    };
+  }
+  if (kind === 'compare') {
+    const items = payload;
+    const names = items.map(i => i.name).join(' vs ');
+    return {
+      title: `${names} on KayaqAI`,
+      text: `Comparing ${names} on KayaqAI.`,
+      url: `https://kayaqai.com/compare?skus=${items.map(i => i.sku).join(',')}`,
+    };
+  }
+  return { title: 'KayaqAI', text: 'Research electronics on KayaqAI.', url: 'https://kayaqai.com' };
+}
+
+function openShareModal(kind, payload) {
+  const { title, text, url } = buildShareText(kind, payload);
+  const root = document.getElementById('modal-root');
+  const enc = encodeURIComponent;
+  const fullText = `${text} ${url}`;
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-close"></div>
+    <div class="modal-content card p-7">
+      <div class="mb-5 text-center">
+        <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-ink-900 text-white">
+          ${categoryIcon('share', 'h-6 w-6')}
+        </div>
+        <h2 class="font-display text-xl font-semibold">Share ${kind === 'product' ? 'this product' : 'this comparison'}</h2>
+        <p class="mt-2 text-sm text-ink-500">${escapeHtml(title)}</p>
+      </div>
+      <div class="grid grid-cols-2 gap-3 md:grid-cols-5">
+        <a href="https://wa.me/?text=${enc(fullText)}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1.5 rounded-xl border border-ink-200 p-4 transition hover:border-emerald-500 hover:bg-emerald-50">
+          <span class="grid h-10 w-10 place-items-center rounded-full bg-emerald-500 text-white">${categoryIcon('whatsapp', 'h-5 w-5')}</span>
+          <span class="text-xs font-medium">WhatsApp</span>
+        </a>
+        <a href="https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1.5 rounded-xl border border-ink-200 p-4 transition hover:border-ink-900 hover:bg-ink-50">
+          <span class="grid h-10 w-10 place-items-center rounded-full bg-ink-900 text-white">${categoryIcon('twitter', 'h-5 w-5')}</span>
+          <span class="text-xs font-medium">X</span>
+        </a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${enc(url)}" target="_blank" rel="noopener noreferrer" class="flex flex-col items-center gap-1.5 rounded-xl border border-ink-200 p-4 transition hover:border-blue-500 hover:bg-blue-50">
+          <span class="grid h-10 w-10 place-items-center rounded-full bg-blue-600 text-white">${categoryIcon('facebook', 'h-5 w-5')}</span>
+          <span class="text-xs font-medium">Facebook</span>
+        </a>
+        <a href="mailto:?subject=${enc(title)}&body=${enc(fullText)}" class="flex flex-col items-center gap-1.5 rounded-xl border border-ink-200 p-4 transition hover:border-amber-500 hover:bg-amber-50">
+          <span class="grid h-10 w-10 place-items-center rounded-full bg-amber-500 text-white">${categoryIcon('email', 'h-5 w-5')}</span>
+          <span class="text-xs font-medium">Email</span>
+        </a>
+        <button id="copy-link-btn" class="flex flex-col items-center gap-1.5 rounded-xl border border-ink-200 p-4 transition hover:border-volt-500 hover:bg-volt-50">
+          <span class="grid h-10 w-10 place-items-center rounded-full bg-volt-500 text-white">${categoryIcon('link', 'h-5 w-5')}</span>
+          <span class="text-xs font-medium">Copy link</span>
+        </button>
+      </div>
+      <div class="mt-5 rounded-xl bg-ink-50 p-3 text-center text-xs text-ink-500">
+        <span class="font-medium text-ink-700">Link:</span> ${escapeHtml(url)}
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('copy-link-btn').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(url);
+      const btn = document.getElementById('copy-link-btn');
+      btn.querySelector('.text-xs').textContent = 'Copied!';
+      setTimeout(closeModal, 800);
+    } catch { alert('Could not copy. Use Ctrl+C: ' + url); }
+  });
+}
+
+function openLoginModal(message, onSuccess) {
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-close"></div>
+    <div class="modal-content card p-7">
+      <div class="mb-5 text-center">
+        <div class="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-ink-900 text-white">
+          ${categoryIcon('sparkle', 'h-6 w-6')}
+        </div>
+        <h2 class="font-display text-2xl font-semibold">Welcome to KayaqAI</h2>
+        ${message ? `<p class="mt-2 text-sm text-ink-500">${escapeHtml(message)}</p>` : ''}
+      </div>
+      <div class="mb-5 flex border border-ink-100 rounded-xl p-1 bg-ink-50">
+        <button id="auth-tab-login" class="flex-1 rounded-lg py-2 text-sm font-medium bg-white shadow-sm">Sign in</button>
+        <button id="auth-tab-register" class="flex-1 rounded-lg py-2 text-sm font-medium text-ink-500">Register</button>
+      </div>
+      <form id="auth-form" class="space-y-3">
+        <div id="register-name-row" class="hidden">
+          <label class="mb-1 block text-xs font-medium text-ink-700">Your name</label>
+          <input id="auth-name" type="text" placeholder="Abhishek" class="w-full rounded-xl border border-ink-200 px-4 py-2.5 text-sm focus:border-ink-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-ink-700">Email</label>
+          <input id="auth-email" type="email" required placeholder="you@example.com" class="w-full rounded-xl border border-ink-200 px-4 py-2.5 text-sm focus:border-ink-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-ink-700">Password</label>
+          <input id="auth-password" type="password" required minlength="6" placeholder="At least 6 characters" class="w-full rounded-xl border border-ink-200 px-4 py-2.5 text-sm focus:border-ink-400 focus:outline-none" />
+        </div>
+        <button type="submit" id="auth-submit" class="btn-primary w-full mt-2">Sign in</button>
+        <p class="text-center text-[11px] text-ink-400 mt-2">Preview: accounts saved locally in your browser.</p>
+      </form>
+    </div>
+  `;
+  const tabLogin = document.getElementById('auth-tab-login');
+  const tabRegister = document.getElementById('auth-tab-register');
+  const submit = document.getElementById('auth-submit');
+  const nameRow = document.getElementById('register-name-row');
+  const setMode = (m) => {
+    if (m === 'login') {
+      tabLogin.classList.add('bg-white','shadow-sm'); tabLogin.classList.remove('text-ink-500');
+      tabRegister.classList.remove('bg-white','shadow-sm'); tabRegister.classList.add('text-ink-500');
+      nameRow.classList.add('hidden'); submit.textContent = 'Sign in';
+    } else {
+      tabRegister.classList.add('bg-white','shadow-sm'); tabRegister.classList.remove('text-ink-500');
+      tabLogin.classList.remove('bg-white','shadow-sm'); tabLogin.classList.add('text-ink-500');
+      nameRow.classList.remove('hidden'); submit.textContent = 'Create account';
+    }
+  };
+  tabLogin.addEventListener('click', () => setMode('login'));
+  tabRegister.addEventListener('click', () => setMode('register'));
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('auth-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value;
+    const name = document.getElementById('auth-name')?.value?.trim() || email.split('@')[0];
+    if (!email || password.length < 6) return;
+    state.currentUser = { name, email };
+    persist.user();
+    closeModal();
+    render();
+    if (typeof onSuccess === 'function') onSuccess();
+  });
+}
+
+function openReviewModal(slug) {
+  const product = PRODUCTS.find(p => p.slug === slug);
+  if (!product) return;
+  const root = document.getElementById('modal-root');
+  root.innerHTML = `
+    <div class="modal-backdrop" id="modal-close"></div>
+    <div class="modal-content card p-7">
+      <div class="mb-5">
+        <div class="text-[11px] font-semibold uppercase tracking-wider text-volt-600">Write a review</div>
+        <div class="text-base font-semibold">${escapeHtml(product.name)}</div>
+        <p class="mt-1 text-xs text-ink-500">As ${escapeHtml(state.currentUser.name)}</p>
+      </div>
+      <form id="review-form" class="space-y-4">
+        <div>
+          <label class="mb-1 block text-xs font-medium text-ink-700">Your rating</label>
+          <div id="review-stars" class="flex gap-1">
+            ${[1,2,3,4,5].map(i => `<span class="star-input" data-r="${i}">⭐</span>`).join('')}
+          </div>
+          <input id="review-rating" type="hidden" value="0" required />
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-ink-700">Title (optional)</label>
+          <input id="review-title" type="text" placeholder="One-line summary" class="w-full rounded-xl border border-ink-200 px-4 py-2.5 text-sm focus:border-ink-400 focus:outline-none" />
+        </div>
+        <div>
+          <label class="mb-1 block text-xs font-medium text-ink-700">Your review</label>
+          <textarea id="review-body" rows="5" required placeholder="Tell others what's good, what's not..." class="w-full rounded-xl border border-ink-200 px-4 py-2.5 text-sm focus:border-ink-400 focus:outline-none"></textarea>
+        </div>
+        <button type="submit" class="btn-primary w-full">Publish review</button>
+      </form>
+    </div>
+  `;
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  let chosenRating = 0;
+  const stars = root.querySelectorAll('.star-input');
+  stars.forEach((s, i) => {
+    s.addEventListener('mouseenter', () => stars.forEach((x, j) => x.classList.toggle('filled', j <= i)));
+    s.addEventListener('mouseleave', () => stars.forEach((x, j) => x.classList.toggle('filled', j < chosenRating)));
+    s.addEventListener('click', () => {
+      chosenRating = i + 1;
+      document.getElementById('review-rating').value = chosenRating;
+      stars.forEach((x, j) => x.classList.toggle('filled', j < chosenRating));
+    });
+  });
+  document.getElementById('review-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (chosenRating === 0) { alert('Pick a star rating first'); return; }
+    const review = {
+      user: state.currentUser.name, email: state.currentUser.email,
+      rating: chosenRating,
+      title: document.getElementById('review-title').value.trim(),
+      body: document.getElementById('review-body').value.trim(),
+      date: new Date().toISOString(),
+    };
+    state.reviews[slug] = state.reviews[slug] || [];
+    state.reviews[slug].push(review);
+    persist.reviews();
+    closeModal();
+    render();
+  });
+}
+
+/* =====================================================================
+ * ROUTER
+ * ===================================================================== */
+
+function render() {
+  const hash = window.location.hash || '#/';
+  const app = document.getElementById('app');
+  const navHtml = renderNavbar();
+  const footerHtml = renderFooter();
+  let pageHtml = '';
+
+  if (hash === '#/' || hash === '') {
+    pageHtml = renderLanding();
+  } else if (hash.startsWith('#/category/')) {
+    pageHtml = renderCategoryPage(decodeURIComponent(hash.replace('#/category/', '')));
+  } else if (hash.startsWith('#/product/')) {
+    pageHtml = renderProductDetail(decodeURIComponent(hash.replace('#/product/', '')));
+  } else if (hash === '#/compare') {
+    pageHtml = renderComparePage();
+  } else if (hash === '#/login') {
+    pageHtml = `<div class="container-tight py-20 text-center text-ink-500">Opening sign in...</div>`;
+  } else {
+    pageHtml = `<div class="container-tight py-20 text-ink-500">Page not found.</div>`;
+  }
+
+  app.innerHTML = navHtml + '<main>' + pageHtml + '</main>' + footerHtml;
+
+  if (hash === '#/' || hash === '') {
+    attachLandingEvents();
+    if (state.voltMessages.length) renderVoltConversation();
+  } else if (hash.startsWith('#/category/')) {
+    renderFilters(); renderProductGrid();
+  } else if (hash.startsWith('#/product/')) {
+    const slug = decodeURIComponent(hash.replace('#/product/', ''));
+    setTimeout(() => drawPriceChart(slug), 50);
+    attachProductDetailEvents(slug);
+  } else if (hash === '#/compare') {
+    document.querySelectorAll('.compare-page-remove').forEach(b => {
+      b.addEventListener('click', () => toggleCompare(b.dataset.slug));
+    });
+    document.getElementById('share-compare-btn')?.addEventListener('click', () => {
+      const items = state.compareList.map(s => PRODUCTS.find(p => p.slug === s)).filter(Boolean);
+      openShareModal('compare', items);
+    });
+  } else if (hash === '#/login') {
+    openLoginModal();
+    setTimeout(() => navigate('#/'), 0);
+  }
+
+  document.querySelectorAll('[data-link]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const href = el.getAttribute('href');
+      if (href?.startsWith('#/')) { e.preventDefault(); navigate(href); window.scrollTo(0,0); }
+    });
+  });
+
+  document.getElementById('logout-btn')?.addEventListener('click', () => {
+    state.currentUser = null; persist.user(); render();
+  });
+
+  renderCompareBar();
+}
+
+function attachLandingEvents() {
+  const form = document.getElementById('volt-form');
+  const input = document.getElementById('volt-input');
+  if (form && input) {
+    form.addEventListener('submit', (e) => { e.preventDefault(); const t = input.value; input.value = ''; sendToVolt(t); });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const t = input.value; input.value = ''; sendToVolt(t); }
+    });
+  }
+  document.querySelectorAll('.volt-example').forEach(b => {
+    b.addEventListener('click', () => sendToVolt(b.textContent));
+  });
+  document.getElementById('open-wizard')?.addEventListener('click', openWizard);
+  document.getElementById('voice-btn')?.addEventListener('click', toggleVoiceInput);
+}
+
+window.addEventListener('hashchange', render);
+render();
+</script>
+</body>
+</html>
